@@ -1,4 +1,7 @@
 import AddProperty from "../pages/AddProperty/AddProperty";
+import AddTest from "../pages/AddTests/AddTest";
+import ListTests from "../pages/ListTests/ListTests";
+import TakeTest from "../pages/TakeTest/TakeTest";
 import SignIn from "../pages/Authentication/SignIn";
 import Calendar from "../pages/Calendar";
 import FormElements from "../pages/Form/FormElements";
@@ -16,9 +19,30 @@ const routespath=[
         restricted:false
 
     },
+    // {
+    //     path:"/dashboard",
+    //     component:<AddProperty/>,
+    //     restricted:true
+
+    // },
+
     {
         path:"/dashboard",
-        component:<AddProperty/>,
+        component:<AddTest/>,
+        restricted:true
+
+    },
+
+    {
+        path:"/all-tests",
+        component:<ListTests/>,
+        restricted:true
+
+    },
+
+    {
+        path:"/take-test/:testId",
+        component:<TakeTest/>,
         restricted:true
 
     },

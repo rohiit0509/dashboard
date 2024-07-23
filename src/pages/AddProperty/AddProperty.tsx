@@ -83,12 +83,74 @@ const AddProperty = () => {
   };
   return (
     <>
-      <Breadcrumb pageName="Add Property" />
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
+      <Breadcrumb pageName="Add Test" />
+
+       <form>
+        <div className="grid grid-cols-1 gap-9 sm:grid-cols-1">
           <div className="flex flex-col gap-9">
             {/* <!-- Input Fields --> */}
             <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+              <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                <h3 className="font-medium text-black dark:text-white">
+                  Test Details
+                </h3>
+              </div>
+              <div className="flex flex-col gap-5.5 p-6.5">
+                <div>
+                  <label className="mb-3 block text-black dark:text-white">
+                  Test Name
+                  </label>
+                  <input
+                    {...register('name', { required: true })}
+                    type="text"
+                    placeholder="Test Name"
+                    className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                </div>
+                
+                <div className="mb-4.5">
+                  <label className="mb-2.5 block text-black dark:text-white">
+                    {' '}
+                    Number Of Questions
+                  </label>
+
+                  <div className="relative z-20 bg-transparent dark:bg-form-input">
+                  <input
+                    {...register('bedrooms')}
+                    type="text"
+                    placeholder="Number Of Questions"
+                    className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading} // Disable the button while loading
+            className={`inline-flex items-center justify-center rounded-md py-4 px-10 text-center font-medium ${isLoading ? 'bg-gray-500 cursor-not-allowed' : 'bg-primary hover:bg-opacity-90'
+              } lg:px-8 xl:px-10`}
+          >
+            {isLoading ? (
+              <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              <p className='text-white'>Submit</p>
+
+            )}
+          </button>
+        </div> 
+      </form>
+
+      {/* <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
+          <div className="flex flex-col gap-9"> */}
+            {/* <!-- Input Fields --> */}
+            {/* <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
               <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                 <h3 className="font-medium text-black dark:text-white">
                   Property Details
@@ -227,7 +289,8 @@ const AddProperty = () => {
                   ></textarea>
                 </div>
                 {/* property type */}
-                <div className="mb-4.5">
+
+                {/* <div className="mb-4.5">
                   <label className="mb-2.5 block text-black dark:text-white">
                     {' '}
                     Property Type
@@ -244,9 +307,10 @@ const AddProperty = () => {
 
                 
                   </div>
-                </div>
+                </div> */}
+
                 {/* property catagory */}
-                <div className="mb-4.5">
+                {/* <div className="mb-4.5">
                   <label className="mb-2.5 block text-black dark:text-white">
                     {' '}
                     Property Catagory
@@ -263,9 +327,10 @@ const AddProperty = () => {
 
                    
                   </div>
-                </div>
+                </div> */}
+
                 {/* property Status */}
-                <div className="mb-4.5">
+                {/* <div className="mb-4.5">
                   <label className="mb-2.5 block text-black dark:text-white">
                     {' '}
                     Property Status
@@ -281,9 +346,10 @@ const AddProperty = () => {
                  
 
                   </div>
-                </div>
+                </div> */}
+
                 {/* property Area */}
-                <div>
+                {/* <div>
                   <label className="mb-3 block text-black dark:text-white">
                     Property Area
                   </label>
@@ -293,11 +359,12 @@ const AddProperty = () => {
                     placeholder="Property Area"
                     className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
-                </div>
+                </div> */}
+
                 {/* property Address */}
 
 
-              </div>
+              {/* </div>
             </div>
 
 
@@ -319,7 +386,7 @@ const AddProperty = () => {
             )}
           </button>
         </div>
-      </form>
+      </form> */}
     </>
   );
 };

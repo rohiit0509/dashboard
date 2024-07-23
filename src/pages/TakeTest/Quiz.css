@@ -1,0 +1,49 @@
+.quiz-container {
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+  }
+  
+  .question-container {
+    margin-bottom: 20px;
+  }
+  
+  .options {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .option {
+    margin-bottom: 10px;
+  }
+  
+  .navigation {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  
+.custom-radio input[type="radio"] {
+    appearance: none;
+    width: 20px;
+    height: 18.3px;
+    background-color: #fff;
+    border: 1px solid #704FE4;
+    display: inline-block;
+    position: relative;
+  }
+  
+  .custom-radio input[type="radio"]:checked::before {
+    content: '';
+    width: 5px; /* Adjust the size of the tick mark */
+    height: 10px; /* Adjust the size of the tick mark */
+    border: solid #704FE4; /* Color and thickness of the tick mark */
+    border-width: 0 2px 2px 0; /* Adjust for the angle and thickness of the tick */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg); /* Position and rotate the tick mark */
+  }
+  
+  
+  
