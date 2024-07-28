@@ -294,7 +294,7 @@ const TakeTest = () => {
           onOptionChange={handleOptionChange}
         />
 
-        <div className={`flex justify-between mt-[336px]`}>
+        <div className={`flex justify-between mt-[36px]`}>
           <button
             onClick={handleFinish}
             className={`px-[18px] py-[11px] bg-[#E95744] text-white text-[14px] rounded-lg ${
