@@ -6,6 +6,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  deleteField
 } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useParams } from 'react-router-dom';
@@ -134,6 +135,58 @@ const TakeTest = () => {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
+
+  const handleClear = async () => {
+    // Clear the user's selected option for the current question
+    setSelectedOptions((prevSelectedOptions) => {
+      const newSelectedOptions = [...prevSelectedOptions];
+      newSelectedOptions[currentQuestion] = null;
+      return newSelectedOptions;
+    });
+  
+    // Clear the user's answer from Firestore
+    try {
+      const testRef = doc(db, 'Tests', testId);
+      const userAnswersRef = doc(testRef, 'userAnswers', userId);
+      const userAnswersDoc = await getDoc(userAnswersRef);
+  
+      if (!userAnswersDoc.exists()) return;
+  
+      const userAnswersData = userAnswersDoc.data();
+  
+      const updatedSelectedOptions =
+        userAnswersData.selectedOptions || Array(quizData.length).fill(null);
+      const updatedAttempted =
+        userAnswersData.attempted || Array(quizData.length).fill(false);
+      const updatedMarks =
+        userAnswersData.marks || Array(quizData.length).fill(0);
+  
+      updatedSelectedOptions[currentQuestion] = null;
+      updatedAttempted[currentQuestion] = false;
+      updatedMarks[currentQuestion] = 0;
+  
+      const totalMarks = updatedMarks.reduce((total, mark) => total + mark, 0);
+  
+      await setDoc(
+        userAnswersRef,
+        {
+          selectedOptions: updatedSelectedOptions,
+          attempted: updatedAttempted,
+          marks: updatedMarks,
+          totalMarks: totalMarks,
+        },
+        { merge: true }
+      );
+  
+      const questionRef = doc(testRef, 'Questions', quizData[currentQuestion].id);
+      await updateDoc(questionRef, {
+        userAnswer: deleteField(),
+      });
+    } catch (error) {
+      console.error('Error clearing user answer:', error);
+    }
+  };
+  
 
   const handleSelectQuestion = (index) => {
     setCurrentQuestion(index);
@@ -306,6 +359,12 @@ const TakeTest = () => {
             Finish Test
           </button>
           <div className="flex gap-[13px]">
+          <button
+              onClick={handleClear}
+              className="px-[18px] py-[11px] border-[1px] border-[#704FE4] text-[#704FE4] text-[14px] rounded-lg disabled:opacity-50 flex gap-[4px] items-center"
+            >
+              clear
+            </button>
             <button
               onClick={handleSkip}
               disabled={currentQuestion === quizData.length - 1}
