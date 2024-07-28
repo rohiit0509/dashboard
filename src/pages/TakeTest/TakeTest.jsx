@@ -25,7 +25,6 @@ const TakeTest = () => {
   const userId = 'USER_ID'; // Replace with actual user ID
 
   useEffect(() => {
-    console.log('Current Question:', quizData[currentQuestion]);
     const fetchTestAndQuestions = async () => {
       setIsLoading(true);
       try {
@@ -73,6 +72,41 @@ const TakeTest = () => {
     fetchTestAndQuestions();
   }, [testId, userId]);
 
+  useEffect(() => {
+    // Function to enter fullscreen
+    const enterFullscreen = () => {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) { // Firefox
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { // IE/Edge
+        elem.msRequestFullscreen();
+      }
+    };
+
+    // Function to exit fullscreen
+    const exitFullscreen = () => {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) { // Firefox
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) { // IE/Edge
+        document.msExitFullscreen();
+      }
+    };
+
+    // Enter fullscreen on component mount
+    enterFullscreen();
+
+    // Exit fullscreen on component unmount
+    return () => exitFullscreen();
+  }, []);
+
   const handleNext = async () => {
     if (selectedOptions[currentQuestion] !== null) {
       await saveUserAnswer(currentQuestion, selectedOptions[currentQuestion]);
@@ -116,8 +150,8 @@ const TakeTest = () => {
   };
 
   const handleTimeUp = () => {
-    setQuizEnded(true);
     saveQuizResults();
+    setQuizEnded(true);
   };
 
   const handleFinish = () => {
@@ -289,9 +323,9 @@ const TakeTest = () => {
                   <path
                     d="M12.6668 2.56783V13.4322M4.29087 2.16712L9.66673 7.59929C9.88574 7.8206 9.88574 8.1794 9.66673 8.40071L4.29087 13.8329C3.93757 14.1899 3.3335 13.937 3.3335 13.4322L3.3335 2.56783C3.3335 2.06296 3.93757 1.81012 4.29087 2.16712Z"
                     stroke="#704FE4"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </span>

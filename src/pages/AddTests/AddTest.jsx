@@ -1,9 +1,7 @@
-import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import { Controller, useForm } from 'react-hook-form';
-import { collection, getDocs, addDoc, updateDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { app, db } from '../../firebase';
-import DatePickerOne from '../../components/Forms/DatePicker/DatePickerOne';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { collection, addDoc } from "firebase/firestore";
+import { db } from '../../firebase';
 import { v4 as uuidv4 } from 'uuid';
 import {
   getDownloadURL,
@@ -11,12 +9,33 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const AddTest = () => {
-  const { handleSubmit, register } = useForm();
+  const { handleSubmit, register, setError, clearErrors, formState: { errors }, reset, getValues } = useForm();
   const [isLoading, setIsLoading] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [numQuestions, setNumQuestions] = useState(0);
+
+  useEffect(() => {
+    // Load saved data from localStorage on component mount
+    const savedData = JSON.parse(localStorage.getItem('testForm'));
+    if (savedData) {
+      reset(savedData.formData);
+      setQuestions(savedData.questions);
+      setNumQuestions(savedData.numQuestions || 0); // Ensure numQuestions is set correctly
+    }
+  }, [reset]);
+
+  useEffect(() => {
+    // Save data to localStorage on form change
+    const formData = getValues();
+    localStorage.setItem('testForm', JSON.stringify({
+      formData,
+      questions,
+      numQuestions,
+    }));
+  }, [questions, numQuestions, getValues]);
 
   const uploadFile = async (file) => {
     const storage = getStorage();
@@ -24,14 +43,14 @@ const AddTest = () => {
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     return new Promise((resolve, reject) => {
-      uploadTask.on('state_changed', 
+      uploadTask.on('state_changed',
         (snapshot) => {
           // Optional: Track upload progress here if needed
-        }, 
+        },
         (error) => {
           console.error('Upload failed:', error);
           reject(error);
-        }, 
+        },
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           resolve(downloadURL);
@@ -40,7 +59,43 @@ const AddTest = () => {
     });
   };
 
+  const validateQuestions = () => {
+    let valid = true;
+    questions.forEach((question, index) => {
+      if (!question.questionText.trim()) {
+        setError(`questions.${index}`, {
+          type: 'manual',
+          message: 'Question text is required.',
+        });
+        valid = false;
+      }
+
+      question.options.forEach((option, optionIndex) => {
+        if (!option.trim() && !question.optionImages[optionIndex]) {
+          setError(`questions.${index}.options.${optionIndex}`, {
+            type: 'manual',
+            message: 'Either text or image is required for each option.',
+          });
+          valid = false;
+        }
+      });
+
+      if (question.answer < 1 || question.answer > 4) {
+        setError(`questions.${index}.answer`, {
+          type: 'manual',
+          message: 'Answer must be between 1 and 4.',
+        });
+        valid = false;
+      }
+    });
+    return valid;
+  };
+
   const onSubmit = async (formData) => {
+    if (!validateQuestions()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -89,8 +144,13 @@ const AddTest = () => {
         })
       );
 
-      // Reload the page after successful submission
-      window.location.reload();
+      // Clear the local storage after successful submission
+      localStorage.removeItem('testForm');
+
+      // Reset the form
+      reset();
+      setQuestions([]);
+      setNumQuestions(0);
 
     } catch (error) {
       console.error('Error adding document: ', error);
@@ -119,6 +179,20 @@ const AddTest = () => {
     }
   };
 
+  const handleQuestionChange = (index, field, value) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index][field] = value;
+    setQuestions(updatedQuestions);
+    clearErrors(`questions.${index}`);
+  };
+
+  const handleOptionChange = (index, optionIndex, value) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index].options[optionIndex] = value;
+    setQuestions(updatedQuestions);
+    clearErrors(`questions.${index}.options.${optionIndex}`);
+  };
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -142,17 +216,19 @@ const AddTest = () => {
                     className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
                 </div>
-                
+
                 <div>
                   <label className="mb-3 block text-black dark:text-white">
                     Timer (in minutes)
                   </label>
                   <input
-                    {...register('timer', { required: true, valueAsNumber: true })}
+                    {...register('timer', { required: true, valueAsNumber: true, min: 1 })}
                     type="number"
+                    min="1"
                     placeholder="Timer"
                     className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
+                  {errors.timer && <p className="text-red-500">Timer must be a positive number.</p>}
                 </div>
 
                 <div>
@@ -167,6 +243,7 @@ const AddTest = () => {
                     min="1"
                     className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
+                  {errors.numberOfQuestions && <p className="text-red-500">Number of questions must be a positive number.</p>}
                 </div>
 
                 {questions.map((question, index) => (
@@ -184,117 +261,81 @@ const AddTest = () => {
                         <input
                           type="text"
                           value={question.questionText}
-                          onChange={(e) => {
-                            const updatedQuestions = [...questions];
-                            updatedQuestions[index].questionText = e.target.value;
-                            setQuestions(updatedQuestions);
-                          }}
+                          onChange={(e) => handleQuestionChange(index, 'questionText', e.target.value)}
                           className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         />
+                        {errors.questions && errors.questions[index] && (
+                          <p className="text-red-500">{errors.questions[index].message}</p>
+                        )}
                       </div>
+
                       <div>
                         <label className="mb-3 block text-black dark:text-white">
                           Question Image
                         </label>
                         <input
                           type="file"
-                          onChange={(e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                              const updatedQuestions = [...questions];
-                              updatedQuestions[index].questionImage = file;
-                              setQuestions(updatedQuestions);
-                            }
-                          }}
+                          onChange={(e) => handleQuestionChange(index, 'questionImage', e.target.files[0])}
                           className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         />
                       </div>
 
-                      <div>
-                        <label className="mb-3 block text-black dark:text-white">
-                          Options
-                        </label>
-                        {question.options.map((option, optionIndex) => (
-                          <div key={optionIndex} className="flex items-center gap-2 mb-3">
-                            <input
-                              type="text"
-                              value={option}
-                              onChange={(e) => {
-                                const updatedQuestions = [...questions];
-                                updatedQuestions[index].options[optionIndex] = e.target.value;
-                                setQuestions(updatedQuestions);
-                              }}
-                              className="flex-1 rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                            />
-                            <input
-                              type="file"
-                              onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (file) {
-                                  const updatedQuestions = [...questions];
-                                  updatedQuestions[index].optionImages[optionIndex] = file;
-                                  setQuestions(updatedQuestions);
-                                }
-                              }}
-                            />
-                          </div>
-                        ))}
-                      </div>
+                      {question.options.map((option, optionIndex) => (
+                        <div key={optionIndex} className="mb-3">
+                          <label className="block text-black dark:text-white">
+                            Option {optionIndex + 1}
+                          </label>
+                          <input
+                            type="text"
+                            value={option}
+                            onChange={(e) => handleOptionChange(index, optionIndex, e.target.value)}
+                            className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                          />
+                          {errors.questions && errors.questions[index] && errors.questions[index].options && errors.questions[index].options[optionIndex] && (
+                            <p className="text-red-500">{errors.questions[index].options[optionIndex].message}</p>
+                          )}
+                          <input
+                            type="file"
+                            onChange={(e) => handleOptionChange(index, optionIndex, e.target.files[0])}
+                            className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary mt-2"
+                          />
+                        </div>
+                      ))}
 
                       <div>
                         <label className="mb-3 block text-black dark:text-white">
-                          Answer
+                          Correct Answer
                         </label>
-                        <input
-                          type="number"
+                        <select
                           value={question.answer}
-                          onChange={(e) => {
-                            const updatedQuestions = [...questions];
-                            updatedQuestions[index].answer = e.target.value;
-                            setQuestions(updatedQuestions);
-                          }}
+                          onChange={(e) => handleQuestionChange(index, 'answer', e.target.value)}
                           className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="mb-3 block text-black dark:text-white">
-                          User Answer
-                        </label>
-                        <input
-                          type="number"
-                          value={question.userAnswer}
-                          onChange={(e) => {
-                            const updatedQuestions = [...questions];
-                            updatedQuestions[index].userAnswer = e.target.value;
-                            setQuestions(updatedQuestions);
-                          }}
-                          className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        />
+                        >
+                          <option value="">Select Answer</option>
+                          <option value="1">Option 1</option>
+                          <option value="2">Option 2</option>
+                          <option value="3">Option 3</option>
+                          <option value="4">Option 4</option>
+                        </select>
+                        {errors.questions && errors.questions[index] && errors.questions[index].answer && (
+                          <p className="text-red-500">{errors.questions[index].answer.message}</p>
+                        )}
                       </div>
                     </div>
                   </div>
                 ))}
+
+                <button
+                  type="submit"
+                  className="rounded-lg bg-primary px-5 py-3 text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-dark focus:ring-primary"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Submitting...' : 'Submit'}
+                </button>
               </div>
             </div>
           </div>
-
-          <button
-            type="submit"
-            disabled={isLoading || numQuestions === 0} // Disable if no questions specified
-            className={`inline-flex items-center justify-center rounded-md py-4 px-10 text-center font-medium ${isLoading ? 'bg-gray-500 cursor-not-allowed' : 'bg-primary hover:bg-opacity-90'
-              } lg:px-8 xl:px-10`}
-          >
-            {isLoading ? (
-              <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            ) : (
-              <p className='text-white'>Add Test</p>
-            )}
-          </button>
-        </div> 
+        </div>
       </form>
     </>
   );
