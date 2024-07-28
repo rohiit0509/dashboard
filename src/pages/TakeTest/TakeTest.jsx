@@ -301,7 +301,7 @@ const TakeTest = () => {
 
   return (
     <div className="flex gap-[18px] px-[5.3%] py-[4.79%]">
-      <div className="w-[60.5%] text-[20px] px-[40px] py-[34px] border-[1px] border-[#EDEDED] rounded-[10px]">
+      <div className="w-[60.5%] text-[20px] px-[40px] py-[34px] border-[1.5px] border-[#EDEDED] shadow-md rounded-[10px]">
         <div className="flex w-full justify-between mb-[30px] items-center">
           <div className="flex gap-[6px] items-center">
             <span className="cursor-pointer" onClick={handlePrevious}>

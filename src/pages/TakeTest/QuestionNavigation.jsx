@@ -7,7 +7,7 @@ const QuestionNavigation = ({
   attempted,
 }) => {
   return (
-    <div className="px-[28px] py-[24px] border-[1px] border-[#EDEDED] rounded-[10px] h-fit flex flex-col gap-[62px] w-[385px]">
+    <div className="px-[28px] py-[24px] border-[1.5px] border-[#EDEDED] shadow-md rounded-[10px] h-fit flex flex-col gap-[62px] w-[385px]">
       <div>
       <h3 className="text-[16px] mb-4">Section</h3>
       <div className="flex flex-col gap-[19px]">
