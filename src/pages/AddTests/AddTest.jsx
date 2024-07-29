@@ -9,7 +9,8 @@ import {
   ref,
   uploadBytesResumable,
 } from 'firebase/storage';
-import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddTest = () => {
   const {
@@ -90,10 +91,10 @@ const AddTest = () => {
         }
       });
 
-      if (question.answer < 1 || question.answer > 4) {
+      if (question.answer < 0 || question.answer > 4) {
         setError(`questions.${index}.answer`, {
           type: 'manual',
-          message: 'Answer must be between 1 and 4.',
+          message: 'Something went wrong',
         });
         valid = false;
       }
@@ -156,6 +157,7 @@ const AddTest = () => {
       reset();
       setQuestions([]);
       setNumQuestions(0);
+      toast.success('Test Added');
     } catch (error) {
       console.error('Error adding document: ', error);
     } finally {
@@ -406,6 +408,7 @@ const AddTest = () => {
           </div>
         </div>
       </form>
+      <ToastContainer />
     </>
   );
 };
