@@ -1,3 +1,5 @@
+// src/components/TakeTest.js
+
 import React, { useState, useEffect } from 'react';
 import {
   collection,
@@ -19,6 +21,7 @@ const TakeTest = () => {
   const [quizData, setQuizData] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [skipped, setSkipped] = useState([]);
   const [attempted, setAttempted] = useState([]);
   const [quizEnded, setQuizEnded] = useState(false);
   const [test, setTest] = useState(null);
@@ -36,12 +39,7 @@ const TakeTest = () => {
           console.error('No such test document!');
         }
 
-        const questionsCollection = collection(
-          db,
-          'Tests',
-          testId,
-          'Questions',
-        );
+        const questionsCollection = collection(db, 'Tests', testId, 'Questions');
         const querySnapshot = await getDocs(questionsCollection);
         const questions = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -56,8 +54,7 @@ const TakeTest = () => {
         if (userAnswersDoc.exists()) {
           const userAnswersData = userAnswersDoc.data();
           setSelectedOptions(
-            userAnswersData.selectedOptions ||
-              Array(questions.length).fill(null),
+            userAnswersData.selectedOptions || Array(questions.length).fill(null),
           );
           setAttempted(
             userAnswersData.attempted || Array(questions.length).fill(false),
@@ -74,37 +71,32 @@ const TakeTest = () => {
   }, [testId, userId]);
 
   useEffect(() => {
-    // Function to enter fullscreen
     const enterFullscreen = () => {
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) { // Firefox
+      } else if (elem.mozRequestFullScreen) {
         elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera
+      } else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) { // IE/Edge
+      } else if (elem.msRequestFullscreen) {
         elem.msRequestFullscreen();
       }
     };
 
-    // Function to exit fullscreen
     const exitFullscreen = () => {
       if (document.exitFullscreen) {
         document.exitFullscreen();
-      } else if (document.mozCancelFullScreen) { // Firefox
+      } else if (document.mozCancelFullScreen) {
         document.mozCancelFullScreen();
-      } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+      } else if (document.webkitExitFullscreen) {
         document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) { // IE/Edge
+      } else if (document.msExitFullscreen) {
         document.msExitFullscreen();
       }
     };
 
-    // Enter fullscreen on component mount
     enterFullscreen();
-
-    // Exit fullscreen on component unmount
     return () => exitFullscreen();
   }, []);
 
@@ -131,42 +123,46 @@ const TakeTest = () => {
   };
 
   const handleSkip = () => {
+    setSkipped((prevSkipped) => {
+      const newSkipped = [...prevSkipped];
+      newSkipped[currentQuestion] = true;
+      return newSkipped;
+    });
+
     if (currentQuestion < quizData.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
 
   const handleClear = async () => {
-    // Clear the user's selected option for the current question
     setSelectedOptions((prevSelectedOptions) => {
       const newSelectedOptions = [...prevSelectedOptions];
       newSelectedOptions[currentQuestion] = null;
       return newSelectedOptions;
     });
-  
-    // Clear the user's answer from Firestore
+
     try {
       const testRef = doc(db, 'Tests', testId);
       const userAnswersRef = doc(testRef, 'userAnswers', userId);
       const userAnswersDoc = await getDoc(userAnswersRef);
-  
+
       if (!userAnswersDoc.exists()) return;
-  
+
       const userAnswersData = userAnswersDoc.data();
-  
+
       const updatedSelectedOptions =
         userAnswersData.selectedOptions || Array(quizData.length).fill(null);
       const updatedAttempted =
         userAnswersData.attempted || Array(quizData.length).fill(false);
       const updatedMarks =
         userAnswersData.marks || Array(quizData.length).fill(0);
-  
+
       updatedSelectedOptions[currentQuestion] = null;
       updatedAttempted[currentQuestion] = false;
       updatedMarks[currentQuestion] = 0;
-  
+
       const totalMarks = updatedMarks.reduce((total, mark) => total + mark, 0);
-  
+
       await setDoc(
         userAnswersRef,
         {
@@ -177,7 +173,7 @@ const TakeTest = () => {
         },
         { merge: true }
       );
-  
+
       const questionRef = doc(testRef, 'Questions', quizData[currentQuestion].id);
       await updateDoc(questionRef, {
         userAnswer: deleteField(),
@@ -186,7 +182,6 @@ const TakeTest = () => {
       console.error('Error clearing user answer:', error);
     }
   };
-  
 
   const handleSelectQuestion = (index) => {
     setCurrentQuestion(index);
@@ -217,13 +212,11 @@ const TakeTest = () => {
       await setDoc(
         doc(db, 'Tests', testId, 'userAnswers', userId),
         {
-          results: {
-            selectedOptions,
-            attempted,
-            marks: Array(quizData.length).fill(0),
-            totalMarks: 0,
-            timestamp: new Date(),
-          },
+          selectedOptions,
+          attempted,
+          marks: Array(quizData.length).fill(0),
+          totalMarks: 0,
+          timestamp: new Date(),
         },
         { merge: true },
       );
@@ -258,7 +251,6 @@ const TakeTest = () => {
       updatedSelectedOptions[questionIndex] = userAnswer;
       updatedAttempted[questionIndex] = true;
 
-      // Ensure correctAnswer is an array
       const correctAnswer = Array.isArray(quizData[questionIndex].answer)
         ? quizData[questionIndex].answer
         : [quizData[questionIndex].answer];
@@ -341,29 +333,27 @@ const TakeTest = () => {
           Question {currentQuestion + 1} of {quizData.length}
         </h2>
         <Question
-          question={quizData[currentQuestion].questionText} // Adjusted field name
+          question={quizData[currentQuestion].questionText}
           options={quizData[currentQuestion].options}
           selectedOption={selectedOptions[currentQuestion]}
           onOptionChange={handleOptionChange}
         />
 
-        <div className={`flex justify-between mt-[36px]`}>
+        <div className="flex justify-between mt-[36px]">
           <button
             onClick={handleFinish}
             className={`px-[18px] py-[11px] bg-[#E95744] text-white text-[14px] rounded-lg ${
-              currentQuestion === quizData.length - 1
-                ? 'opacity-100'
-                : 'opacity-45'
+              currentQuestion === quizData.length - 1 ? 'opacity-100' : 'opacity-45'
             }`}
           >
             Finish Test
           </button>
           <div className="flex gap-[13px]">
-          <button
+            <button
               onClick={handleClear}
               className="px-[18px] py-[11px] border-[1px] border-[#704FE4] text-[#704FE4] text-[14px] rounded-lg disabled:opacity-50 flex gap-[4px] items-center"
             >
-              clear
+              Clear
             </button>
             <button
               onClick={handleSkip}
@@ -420,6 +410,7 @@ const TakeTest = () => {
         currentQuestion={currentQuestion}
         onSelectQuestion={handleSelectQuestion}
         attempted={attempted}
+        skipped={skipped}
       />
     </div>
   );

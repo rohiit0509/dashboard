@@ -2,6 +2,8 @@ import AddProperty from "../pages/AddProperty/AddProperty";
 import AddTest from "../pages/AddTests/AddTest";
 import ListTests from "../pages/ListTests/ListTests";
 import TakeTest from "../pages/TakeTest/TakeTest";
+import TestResults from "../pages/TestResults/TestResults";
+import AllResults from "../pages/TestResults/AllResults";
 import SignIn from "../pages/Authentication/SignIn";
 import Calendar from "../pages/Calendar";
 import FormElements from "../pages/Form/FormElements";
@@ -32,6 +34,21 @@ const routespath=[
         restricted:true
 
     },
+
+    {
+        path:"/test-results/:testId",
+        component:<TestResults/>,
+        restricted:true
+
+    },
+
+    {
+        path:"/all-results",
+        component:<AllResults/>,
+        restricted:true
+
+    },
+
 
     {
         path:"/all-tests",
