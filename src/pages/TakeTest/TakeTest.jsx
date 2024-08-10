@@ -184,8 +184,23 @@ const TakeTest = () => {
   };
 
   const handleSelectQuestion = (index) => {
-    setCurrentQuestion(index);
-  };
+  setCurrentQuestion(index);
+  setAttempted((prevAttempted) => {
+    const newAttempted = [...prevAttempted];
+    newAttempted[index] = selectedOptions[index] !== null;
+    return newAttempted;
+  });
+};
+
+useEffect(() => {
+  setAttempted((prevAttempted) => {
+    const newAttempted = [...prevAttempted];
+    newAttempted[currentQuestion] = selectedOptions[currentQuestion] !== null;
+    return newAttempted;
+  });
+}, [currentQuestion, selectedOptions]);
+
+
 
   const handleOptionChange = async (index) => {
     setSelectedOptions((prevSelectedOptions) => {
