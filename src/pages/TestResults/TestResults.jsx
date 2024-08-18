@@ -80,10 +80,6 @@ const TestResults = () => {
               </tr>
             );
           })}
-          <tr>
-            <td className="py-2 px-4 border-b text-center font-bold" colSpan={3}>Total Marks</td>
-            <td className="py-2 px-4 border-b text-center font-bold">{results.totalMarks}</td>
-          </tr>
         </tbody>
       </table>
     </div>

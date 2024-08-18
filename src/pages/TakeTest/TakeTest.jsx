@@ -200,7 +200,7 @@ useEffect(() => {
   });
 }, [currentQuestion, selectedOptions]);
 
-
+ 
 
   const handleOptionChange = async (index) => {
     setSelectedOptions((prevSelectedOptions) => {

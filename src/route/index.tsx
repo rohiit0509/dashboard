@@ -4,6 +4,8 @@ import ListTests from "../pages/ListTests/ListTests";
 import TakeTest from "../pages/TakeTest/TakeTest";
 import TestResults from "../pages/TestResults/TestResults";
 import AllResults from "../pages/TestResults/AllResults";
+import AllCourses from "../pages/Courses/AllCourses";
+import CourseDetails from "../pages/Courses/CourseDetails";
 import SignIn from "../pages/Authentication/SignIn";
 import Calendar from "../pages/Calendar";
 import FormElements from "../pages/Form/FormElements";
@@ -38,6 +40,20 @@ const routespath=[
     {
         path:"/test-results/:testId",
         component:<TestResults/>,
+        restricted:true
+
+    },
+
+    {
+        path:"/courses",
+        component:<AllCourses/>,
+        restricted:true
+
+    },
+
+    {
+        path:"/courses/:courseId",
+        component:<CourseDetails/>,
         restricted:true
 
     },
