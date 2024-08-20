@@ -43,8 +43,36 @@ const handleVideoUpload = async () => {
     input.click();
 };
 
+// Recursive component to render sub-subtopics
+const SubSubtopicList = ({ subSubtopics, handleSubSubtopicChange, parentIndex, subtopicIndex }) => (
+    <ul className="ml-4 mt-2 list-disc">
+        {subSubtopics.map((subSubtopic, index) => (
+            <li key={index} className="mb-4">
+                <div>
+                    <label className="block mb-2">Sub-Subtopic {index + 1} Name:</label>
+                    <input
+                        type="text"
+                        value={subSubtopic.name || ''}
+                        onChange={(e) => handleSubSubtopicChange(parentIndex, subtopicIndex, index, 'name', e.target.value)}
+                        className="border p-2 rounded-md w-full"
+                    />
+                </div>
+                <div className="mt-2">
+                    <label className="block mb-2">Sub-Subtopic {index + 1} Description:</label>
+                    <ReactQuill
+                        value={subSubtopic.description || ''}
+                        onChange={(value) => handleSubSubtopicChange(parentIndex, subtopicIndex, index, 'description', value)}
+                        className="border rounded-md"
+                        modules={modules}
+                    />
+                </div>
+            </li>
+        ))}
+    </ul>
+);
+
 // Recursive component to render subtopics
-const SubtopicList = ({ subtopics, handleSubtopicChange, handleFileChange, parentIndex }) => (
+const SubtopicList = ({ subtopics, handleSubtopicChange, handleFileChange, parentIndex, handleSubSubtopicChange }) => (
     <ul className="ml-4 mt-2 list-disc">
         {subtopics.map((subtopic, subtopicIndex) => (
             <li key={subtopicIndex} className="mb-4">
@@ -53,37 +81,39 @@ const SubtopicList = ({ subtopics, handleSubtopicChange, handleFileChange, paren
                         {subtopic.name}
                     </button>
                 </div>
-                <div className="ml-4">
-                    <ReactQuill
-                        value={subtopic.content}
-                        onChange={(value) => handleSubtopicChange(parentIndex, subtopicIndex, 'content', value)}
-                        className="border rounded-md"
-                        modules={modules}
-                    />
-                    <input
-                        type="file"
-                        multiple
-                        onChange={(e) => handleFileChange(e, parentIndex, subtopicIndex)}
-                        className="border p-2 rounded-md w-full mt-2"
-                    />
-                    {subtopic.media?.map((url, mediaIndex) => (
-                        <div key={mediaIndex}>
-                            {url.endsWith('.mp4') ? (
-                                <video src={url} controls className="w-full mt-2" />
-                            ) : (
-                                <img src={url} alt={`Media ${mediaIndex}`} className="w-full mt-2" />
-                            )}
-                        </div>
-                    ))}
-                    {subtopic.subtopics && subtopic.subtopics.length > 0 && (
-                        <SubtopicList
-                            subtopics={subtopic.subtopics}
-                            handleSubtopicChange={handleSubtopicChange}
-                            handleFileChange={handleFileChange}
-                            parentIndex={subtopicIndex}
+                {subtopic.isExpanded && (
+                    <div className="ml-4">
+                        <ReactQuill
+                            value={subtopic.content}
+                            onChange={(value) => handleSubtopicChange(parentIndex, subtopicIndex, 'content', value)}
+                            className="border rounded-md"
+                            modules={modules}
                         />
-                    )}
-                </div>
+                        <input
+                            type="file"
+                            multiple
+                            onChange={(e) => handleFileChange(e, parentIndex, subtopicIndex)}
+                            className="border p-2 rounded-md w-full mt-2"
+                        />
+                        {subtopic.media?.map((url, mediaIndex) => (
+                            <div key={mediaIndex}>
+                                {url.endsWith('.mp4') ? (
+                                    <video src={url} controls className="w-full mt-2" />
+                                ) : (
+                                    <img src={url} alt={`Media ${mediaIndex}`} className="w-full mt-2" />
+                                )}
+                            </div>
+                        ))}
+                        {subtopic.subSubtopics && subtopic.subSubtopics.length > 0 && (
+                            <SubSubtopicList
+                                subSubtopics={subtopic.subSubtopics}
+                                handleSubSubtopicChange={handleSubSubtopicChange}
+                                parentIndex={parentIndex}
+                                subtopicIndex={subtopicIndex}
+                            />
+                        )}
+                    </div>
+                )}
             </li>
         ))}
     </ul>
@@ -98,7 +128,6 @@ function CourseDetails() {
     const [newTopicName, setNewTopicName] = useState('');
     const [subtopicsCount, setSubtopicsCount] = useState(1);
     const [newSubtopics, setNewSubtopics] = useState([]);
-    const [expandedTopic, setExpandedTopic] = useState(null);
 
     useEffect(() => {
         const fetchCourse = async () => {
@@ -114,7 +143,6 @@ function CourseDetails() {
 
                 if (docSnap.exists()) {
                     const courseData = docSnap.data();
-                    console.log("Course data:", courseData);
                     setCourse(courseData);
                     setTopics(courseData.topics || []);
                 } else {
@@ -162,6 +190,9 @@ function CourseDetails() {
             subtopic.name = value;
         } else if (field === 'description') {
             subtopic.description = value;
+        } else if (field === 'subSubtopicCount') {
+            const subSubtopics = Array.from({ length: value }, () => ({ name: '', description: '' }));
+            subtopic.subSubtopics = subSubtopics;
         }
 
         setTopics(updatedTopics);
@@ -169,7 +200,7 @@ function CourseDetails() {
 
     const handleAddSubtopicField = (index) => {
         const updatedTopics = [...topics];
-        updatedTopics[index].subtopics = [...updatedTopics[index].subtopics, { name: '', content: '', description: '', media: [], subtopics: [] }];
+        updatedTopics[index].subtopics = [...updatedTopics[index].subtopics, { name: '', content: '', description: '', media: [], subSubtopics: [] }];
         setTopics(updatedTopics);
     };
 
@@ -202,159 +233,67 @@ function CourseDetails() {
         }
     };
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    const handleSubSubtopicChange = (parentIndex, subtopicIndex, subSubtopicIndex, field, value) => {
+        const updatedTopics = [...topics];
+        const subtopic = updatedTopics[parentIndex].subtopics[subtopicIndex];
+        const subSubtopic = subtopic.subSubtopics[subSubtopicIndex];
 
-    if (!course) {
-        return <div>No course found.</div>;
-    }
+        // Update the sub-subtopic
+        subSubtopic[field] = value;
+
+        // Set the updated topics
+        setTopics(updatedTopics);
+    };
+
+    if (loading) return <div>Loading...</div>;
 
     return (
         <div className="p-4">
-            <h2 className="text-2xl font-bold">{course.courseName} - Dashboard</h2>
+            <h1 className="text-2xl font-bold">Course Details</h1>
+            {course && (
+                <div>
+                    {topics.map((topic, index) => (
+                        <div key={index} className="my-4">
+                            <h2 className="text-xl font-semibold">{topic.name}</h2>
+                            <SubtopicList
+                                subtopics={topic.subtopics}
+                                handleSubtopicChange={handleSubtopicChange}
+                                handleFileChange={handleFileChange}
+                                parentIndex={index}
+                                handleSubSubtopicChange={handleSubSubtopicChange}
+                            />
+                        </div>
+                    ))}
 
-            <button onClick={handleAddTopic} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                Add Topic
-            </button>
+                    {showAddTopic ? (
+                        <div className="my-4">
+                            <input
+                                type="text"
+                                placeholder="New Topic Name"
+                                value={newTopicName}
+                                onChange={(e) => setNewTopicName(e.target.value)}
+                                className="border p-2 rounded-md w-full"
+                            />
+                            <button onClick={handleSaveNewTopic} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md">
+                                Save New Topic
+                            </button>
+                            <button onClick={() => setShowAddTopic(false)} className="mt-2 ml-2 bg-gray-500 text-white px-4 py-2 rounded-md">
+                                Cancel
+                            </button>
+                        </div>
+                    ) : (
+                        <button onClick={handleAddTopic} className="bg-blue-500 text-white px-4 py-2 rounded-md">
+                            Add New Topic
+                        </button>
+                    )}
 
-            {showAddTopic && (
-                <div className="mt-4">
-                    <div>
-                        <label className="block mb-2">Topic Name:</label>
-                        <input
-                            type="text"
-                            value={newTopicName}
-                            onChange={(e) => setNewTopicName(e.target.value)}
-                            className="border p-2 rounded-md w-full"
-                        />
-                    </div>
-                    <div className="mt-2">
-                        <label className="block mb-2">Number of Subtopics:</label>
-                        <input
-                            type="number"
-                            value={subtopicsCount}
-                            onChange={(e) => setSubtopicsCount(parseInt(e.target.value, 10))}
-                            min="1"
-                            className="border p-2 rounded-md w-full"
-                        />
-                    </div>
-                    <div className="mt-4">
-                        {Array.from({ length: subtopicsCount }, (_, index) => (
-                            <div key={index} className="mb-4">
-                                <div>
-                                    <label className="block mb-2">Subtopic {index + 1} Name:</label>
-                                    <input
-                                        type="text"
-                                        value={newSubtopics[index]?.name || ''}
-                                        onChange={(e) => {
-                                            const name = e.target.value;
-                                            setNewSubtopics(prev => {
-                                                const updated = [...prev];
-                                                if (!updated[index]) updated[index] = {};
-                                                updated[index].name = name;
-                                                return updated;
-                                            });
-                                        }}
-                                                                                className="border p-2 rounded-md w-full"
-                                    />
-                                </div>
-                                <div className="mt-2">
-                                    <label className="block mb-2">Number of Sub-Subtopics:</label>
-                                    <input
-                                        type="number"
-                                        value={newSubtopics[index]?.subtopicsCount || 1}
-                                        onChange={(e) => {
-                                            const count = parseInt(e.target.value, 10);
-                                            setNewSubtopics(prev => {
-                                                const updated = [...prev];
-                                                if (!updated[index]) updated[index] = {};
-                                                updated[index].subtopicsCount = count;
-                                                if (!updated[index].subtopics) updated[index].subtopics = [];
-                                                const currentSubtopicsCount = updated[index].subtopics.length;
-                                                if (count > currentSubtopicsCount) {
-                                                    updated[index].subtopics = [
-                                                        ...updated[index].subtopics,
-                                                        ...Array.from({ length: count - currentSubtopicsCount }, (_, i) => ({ name: '', description: '' }))
-                                                    ];
-                                                } else {
-                                                    updated[index].subtopics = updated[index].subtopics.slice(0, count);
-                                                }
-                                                return updated;
-                                            });
-                                        }}
-                                        min="1"
-                                        className="border p-2 rounded-md w-full"
-                                    />
-                                </div>
-                                <div className="mt-4">
-                                    {Array.from({ length: newSubtopics[index]?.subtopicsCount || 1 }, (_, subIndex) => (
-                                        <div key={subIndex} className="mb-4">
-                                            <div>
-                                                <label className="block mb-2">Sub-Subtopic {subIndex + 1} Name:</label>
-                                                <input
-                                                    type="text"
-                                                    value={newSubtopics[index]?.subtopics[subIndex]?.name || ''}
-                                                    onChange={(e) => {
-                                                        const name = e.target.value;
-                                                        setNewSubtopics(prev => {
-                                                            const updated = [...prev];
-                                                            if (!updated[index].subtopics) updated[index].subtopics = [];
-                                                            if (!updated[index].subtopics[subIndex]) updated[index].subtopics[subIndex] = {};
-                                                            updated[index].subtopics[subIndex].name = name;
-                                                            return updated;
-                                                        });
-                                                    }}
-                                                    className="border p-2 rounded-md w-full"
-                                                />
-                                            </div>
-                                            <div className="mt-2">
-                                                <label className="block mb-2">Sub-Subtopic {subIndex + 1} Description:</label>
-                                                <ReactQuill
-                                                    value={newSubtopics[index]?.subtopics[subIndex]?.description || ''}
-                                                    onChange={(value) => {
-                                                        setNewSubtopics(prev => {
-                                                            const updated = [...prev];
-                                                            if (!updated[index].subtopics) updated[index].subtopics = [];
-                                                            if (!updated[index].subtopics[subIndex]) updated[index].subtopics[subIndex] = {};
-                                                            updated[index].subtopics[subIndex].description = value;
-                                                            return updated;
-                                                        });
-                                                    }}
-                                                    className="border rounded-md"
-                                                    modules={modules}
-                                                />
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <button onClick={handleSaveNewTopic} className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
-                        Save Topic
+                    <button onClick={handleSave} className="mt-4 bg-green-500 text-white px-4 py-2 rounded-md">
+                        Save Changes
                     </button>
                 </div>
             )}
-
-            {topics.length > 0 && (
-                <div className="mt-4">
-                    <h3 className="text-xl font-bold">Topics</h3>
-                    <SubtopicList
-                        subtopics={topics}
-                        handleSubtopicChange={handleSubtopicChange}
-                        handleFileChange={handleFileChange}
-                        parentIndex={null}
-                    />
-                </div>
-            )}
-
-            <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mt-4">
-                Save All Changes
-            </button>
         </div>
     );
 }
 
 export default CourseDetails;
-

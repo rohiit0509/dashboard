@@ -6,6 +6,8 @@ import TestResults from "../pages/TestResults/TestResults";
 import AllResults from "../pages/TestResults/AllResults";
 import AllCourses from "../pages/Courses/AllCourses";
 import CourseDetails from "../pages/Courses/CourseDetails";
+import CourseView from "../pages/Courses/CourseView";
+import ViewAllCourses from "../pages/Courses/ViewAllCourses";
 import SignIn from "../pages/Authentication/SignIn";
 import Calendar from "../pages/Calendar";
 import FormElements from "../pages/Form/FormElements";
@@ -54,6 +56,20 @@ const routespath=[
     {
         path:"/courses/:courseId",
         component:<CourseDetails/>,
+        restricted:true
+
+    },
+
+    {
+        path:"/view-courses",
+        component:<ViewAllCourses/>,
+        restricted:true
+
+    },
+
+    {
+        path:"/view-courses/:courseId",
+        component:<CourseView/>,
         restricted:true
 
     },

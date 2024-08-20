@@ -4,7 +4,7 @@ import { db } from '../../firebase';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 import CourseModal from './CourseModal'; // Adjust the import path accordingly
 
-function AllCourses() {
+function ViewAllCourses() {
     const [showModal, setShowModal] = useState(false);
     const [courses, setCourses] = useState([]);
 
@@ -54,7 +54,7 @@ function AllCourses() {
                 <h2 className="text-[20px] font-semibold ">On Going Courses</h2>
                 <div className="mt-4 space-y-4 flex justify-start items-end">
                     {courses.map((course) => (
-                            <Link to={`/courses/${course.id}`} key={course.id} className='w-full max-w-[272px] px-[13px] py-[12px] rounded-[10px] border border-[#EDEDED]'>
+                            <Link to={`/view-courses/${course.id}`} key={course.id} className='w-full max-w-[272px] px-[13px] py-[12px] rounded-[10px] border border-[#EDEDED]'>
                                 <div className=' w-full h-45 bg-slate-400 rounded-[10px]'></div>
                                 <h3 className="text-md font-bold">{course.courseName}</h3>
                                 <p className="text-sm text-[#2D3748]">{course.subHeading}</p>
@@ -67,4 +67,4 @@ function AllCourses() {
     );
 }
 
-export default AllCourses;
+export default ViewAllCourses;
