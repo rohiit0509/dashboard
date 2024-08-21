@@ -22,27 +22,6 @@ const modules = {
     }
 };
 
-// Handle video upload
-const handleVideoUpload = async () => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'video/*');
-    input.addEventListener('change', async (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const storageRef = ref(storage, `courses/videos/${file.name}`);
-            await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(storageRef);
-
-            // Insert video URL into Quill editor
-            const quill = document.querySelector('.ql-editor').__quill;
-            const range = quill.getSelection();
-            quill.insertEmbed(range.index, 'video', url);
-        }
-    });
-    input.click();
-};
-
 // Recursive component to render sub-subtopics
 const SubSubtopicList = ({ subSubtopics, handleSubSubtopicChange, parentIndex, subtopicIndex }) => (
     <ul className="ml-4 mt-2 list-disc">
@@ -77,42 +56,30 @@ const SubtopicList = ({ subtopics, handleSubtopicChange, handleFileChange, paren
         {subtopics.map((subtopic, subtopicIndex) => (
             <li key={subtopicIndex} className="mb-4">
                 <div>
-                    <button onClick={() => handleSubtopicChange(parentIndex, subtopicIndex, 'expand')}>
-                        {subtopic.name}
-                    </button>
+                    <label className="block mb-2">Subtopic {subtopicIndex + 1} Name:</label>
+                    <input
+                        type="text"
+                        value={subtopic.name || ''}
+                        onChange={(e) => handleSubtopicChange(parentIndex, subtopicIndex, 'name', e.target.value)}
+                        className="border p-2 rounded-md w-full"
+                    />
                 </div>
-                {subtopic.isExpanded && (
-                    <div className="ml-4">
-                        <ReactQuill
-                            value={subtopic.content}
-                            onChange={(value) => handleSubtopicChange(parentIndex, subtopicIndex, 'content', value)}
-                            className="border rounded-md"
-                            modules={modules}
-                        />
-                        <input
-                            type="file"
-                            multiple
-                            onChange={(e) => handleFileChange(e, parentIndex, subtopicIndex)}
-                            className="border p-2 rounded-md w-full mt-2"
-                        />
-                        {subtopic.media?.map((url, mediaIndex) => (
-                            <div key={mediaIndex}>
-                                {url.endsWith('.mp4') ? (
-                                    <video src={url} controls className="w-full mt-2" />
-                                ) : (
-                                    <img src={url} alt={`Media ${mediaIndex}`} className="w-full mt-2" />
-                                )}
-                            </div>
-                        ))}
-                        {subtopic.subSubtopics && subtopic.subSubtopics.length > 0 && (
-                            <SubSubtopicList
-                                subSubtopics={subtopic.subSubtopics}
-                                handleSubSubtopicChange={handleSubSubtopicChange}
-                                parentIndex={parentIndex}
-                                subtopicIndex={subtopicIndex}
-                            />
-                        )}
-                    </div>
+                <div>
+                    <label className="block mb-2">Number of Sub-Subtopics:</label>
+                    <input
+                        type="number"
+                        value={subtopic.subSubtopicCount || ''}
+                        onChange={(e) => handleSubtopicChange(parentIndex, subtopicIndex, 'subSubtopicCount', e.target.value)}
+                        className="border p-2 rounded-md w-full"
+                    />
+                </div>
+                {subtopic.subSubtopics && subtopic.subSubtopics.length > 0 && (
+                    <SubSubtopicList
+                        subSubtopics={subtopic.subSubtopics}
+                        handleSubSubtopicChange={handleSubSubtopicChange}
+                        parentIndex={parentIndex}
+                        subtopicIndex={subtopicIndex}
+                    />
                 )}
             </li>
         ))}
@@ -165,7 +132,12 @@ function CourseDetails() {
     const handleSaveNewTopic = async () => {
         const newTopic = {
             name: newTopicName,
-            subtopics: newSubtopics
+            subtopics: Array.from({ length: subtopicsCount }, () => ({
+                name: '',
+                content: '',
+                subSubtopics: [],
+                subSubtopicCount: 0
+            }))
         };
 
         const updatedTopics = [...topics, newTopic];
@@ -182,41 +154,13 @@ function CourseDetails() {
         const topic = updatedTopics[parentIndex];
         const subtopic = topic.subtopics[subtopicIndex];
 
-        if (field === 'expand') {
-            subtopic.isExpanded = !subtopic.isExpanded;
-        } else if (field === 'content') {
-            subtopic.content = value;
-        } else if (field === 'name') {
-            subtopic.name = value;
-        } else if (field === 'description') {
-            subtopic.description = value;
-        } else if (field === 'subSubtopicCount') {
+        if (field === 'subSubtopicCount') {
             const subSubtopics = Array.from({ length: value }, () => ({ name: '', description: '' }));
             subtopic.subSubtopics = subSubtopics;
+        } else {
+            subtopic[field] = value;
         }
 
-        setTopics(updatedTopics);
-    };
-
-    const handleAddSubtopicField = (index) => {
-        const updatedTopics = [...topics];
-        updatedTopics[index].subtopics = [...updatedTopics[index].subtopics, { name: '', content: '', description: '', media: [], subSubtopics: [] }];
-        setTopics(updatedTopics);
-    };
-
-    const handleFileChange = async (event, parentIndex, subtopicIndex) => {
-        const files = Array.from(event.target.files);
-        const mediaUrls = [];
-
-        for (const file of files) {
-            const storageRef = ref(storage, `courses/${courseId}/${file.name}`);
-            await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(storageRef);
-            mediaUrls.push(url);
-        }
-
-        const updatedTopics = [...topics];
-        updatedTopics[parentIndex].subtopics[subtopicIndex].media = [...updatedTopics[parentIndex].subtopics[subtopicIndex].media, ...mediaUrls];
         setTopics(updatedTopics);
     };
 
@@ -238,10 +182,8 @@ function CourseDetails() {
         const subtopic = updatedTopics[parentIndex].subtopics[subtopicIndex];
         const subSubtopic = subtopic.subSubtopics[subSubtopicIndex];
 
-        // Update the sub-subtopic
         subSubtopic[field] = value;
 
-        // Set the updated topics
         setTopics(updatedTopics);
     };
 
@@ -258,9 +200,8 @@ function CourseDetails() {
                             <SubtopicList
                                 subtopics={topic.subtopics}
                                 handleSubtopicChange={handleSubtopicChange}
-                                handleFileChange={handleFileChange}
-                                parentIndex={index}
                                 handleSubSubtopicChange={handleSubSubtopicChange}
+                                parentIndex={index}
                             />
                         </div>
                     ))}
@@ -273,6 +214,13 @@ function CourseDetails() {
                                 value={newTopicName}
                                 onChange={(e) => setNewTopicName(e.target.value)}
                                 className="border p-2 rounded-md w-full"
+                            />
+                            <input
+                                type="number"
+                                placeholder="Number of Subtopics"
+                                value={subtopicsCount}
+                                onChange={(e) => setSubtopicsCount(e.target.value)}
+                                className="border p-2 rounded-md w-full mt-2 text-black"
                             />
                             <button onClick={handleSaveNewTopic} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md">
                                 Save New Topic
@@ -288,7 +236,7 @@ function CourseDetails() {
                     )}
 
                     <button onClick={handleSave} className="mt-4 bg-green-500 text-white px-4 py-2 rounded-md">
-                        Save Changes
+                        Save All Changes
                     </button>
                 </div>
             )}
