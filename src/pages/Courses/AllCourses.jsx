@@ -58,6 +58,7 @@ function AllCourses() {
           <Flex wrap gap={20}>
             {courses.map((course) => (
               <Card
+                hoverable
                 onClick={() => navigate(`/view-courses/${course.id}`)}
                 style={{ width: 300, cursor: 'pointer' }}
                 cover={

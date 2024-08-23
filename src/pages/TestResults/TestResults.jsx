@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { db } from '../../firebase';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { TableWrapper } from '../../styles/table';
+import { Table } from 'antd';
 
 const TestResults = () => {
   const { testId } = useParams();
@@ -53,8 +55,8 @@ const TestResults = () => {
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <h2 className="text-3xl font-bold mb-4">Test Results</h2>
+    <>
+      <h2 className="text-3xl font-bold mb-4 text-center">Test Results</h2>
       <table className="min-w-full bg-white">
         <thead>
           <tr>
@@ -81,8 +83,11 @@ const TestResults = () => {
             );
           })}
         </tbody>
+        {/* <TableWrapper>
+        <Table columns={columns} dataSource={results?.selectedOptions}/>
+      </TableWrapper> */}
       </table>
-    </div>
+    </>
   );
 };
 

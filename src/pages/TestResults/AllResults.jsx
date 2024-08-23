@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../../firebase';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { Space, Table } from 'antd';
+import { TableWrapper } from '../../styles/table';
 
 const AllResults = () => {
   const [testResults, setTestResults] = useState([]);
@@ -17,18 +19,29 @@ const AllResults = () => {
 
         const resultsPromises = testsSnapshot.docs.map(async (testDoc) => {
           const testId = testDoc.id;
-          const userAnswersRef = doc(db, 'Tests', testId, 'userAnswers', userId);
+          const userAnswersRef = doc(
+            db,
+            'Tests',
+            testId,
+            'userAnswers',
+            userId,
+          );
           const userAnswersDoc = await getDoc(userAnswersRef);
 
           if (userAnswersDoc.exists()) {
             const data = userAnswersDoc.data();
             const totalQuestions = data.selectedOptions.length;
-            const attemptedQuestions = data.selectedOptions.filter(opt => opt !== null).length;
-            const correctAnswers = data.marks.reduce((sum, mark) => sum + (mark === 1 ? 1 : 0), 0);
+            const attemptedQuestions = data.selectedOptions.filter(
+              (opt) => opt !== null,
+            ).length;
+            const correctAnswers = data.marks.reduce(
+              (sum, mark) => sum + (mark === 1 ? 1 : 0),
+              0,
+            );
 
             return {
               testId,
-              testName: testDoc.data().testName, 
+              testName: testDoc.data().testName,
               totalQuestions,
               attemptedQuestions,
               correctAnswers,
@@ -39,7 +52,9 @@ const AllResults = () => {
           return null;
         });
 
-        const results = (await Promise.all(resultsPromises)).filter((result) => result !== null);
+        const results = (await Promise.all(resultsPromises)).filter(
+          (result) => result !== null,
+        );
         setTestResults(results);
       } catch (error) {
         console.error('Error fetching all results:', error);
@@ -58,39 +73,49 @@ const AllResults = () => {
   if (testResults.length === 0) {
     return <div>No results found.</div>;
   }
-
+  const columns = [
+    {
+      title: 'Test Name	',
+      dataIndex: 'testName',
+      key: 'testName',
+    },
+    {
+      title: 'Total Questions',
+      dataIndex: 'totalQuestions',
+      key: 'totalQuestions',
+    },
+    {
+      title: 'Attempted Questions',
+      dataIndex: 'attemptedQuestions',
+      key: 'attemptedQuestions',
+    },
+    {
+      title: 'Correct Answers',
+      dataIndex: 'correctAnswers',
+      key: 'correctAnswers',
+    },
+    {
+      title: 'Total Marks',
+      dataIndex: 'totalMarks',
+      key: 'totalMarks',
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <Space size="middle">
+          <Link to={`/test-results/${record.testId}`}>View More</Link>
+        </Space>
+      ),
+    },
+  ];
   return (
-    <div className="flex flex-col items-center">
-      <h2 className="text-3xl font-bold mb-4">All Test Results</h2>
-      <table className="min-w-full bg-white mb-4">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border-b">Test Name</th>
-            <th className="py-2 px-4 border-b">Total Questions</th>
-            <th className="py-2 px-4 border-b">Attempted Questions</th>
-            <th className="py-2 px-4 border-b">Correct Answers</th>
-            <th className="py-2 px-4 border-b">Total Marks</th>
-            <th className="py-2 px-4 border-b"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {testResults.map((result, index) => (
-            <tr key={index}>
-              <td className="py-2 px-4 border-b text-center">{result.testName}</td>
-              <td className="py-2 px-4 border-b text-center">{result.totalQuestions}</td>
-              <td className="py-2 px-4 border-b text-center">{result.attemptedQuestions}</td>
-              <td className="py-2 px-4 border-b text-center">{result.correctAnswers}</td>
-              <td className="py-2 px-4 border-b text-center">{result.totalMarks}</td>
-              <td className="py-2 px-4 border-b text-center">
-                <NavLink to={`/test-results/${result.testId}`} className="text-blue-500">
-                  View More
-                </NavLink>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <h2 className="text-3xl font-bold mb-4 text-center">All Test Results</h2>
+      <TableWrapper>
+        <Table columns={columns} dataSource={testResults}/>
+      </TableWrapper>
+    </>
   );
 };
 

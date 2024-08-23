@@ -46,9 +46,6 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   ShoppingCartOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
 } from '@ant-design/icons';
 import { Button, Flex, Layout, Menu, theme, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -117,7 +114,7 @@ const DefaultLayout:React.FC<{ children: ReactNode }>= ({children}) => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed} theme="light">
-        <div className="demo-logo-vertical" />
+        <div className="pt-20" />
         <Menu
           theme="light"
           mode="inline"
