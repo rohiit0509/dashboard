@@ -1,70 +1,104 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Import Link from React Router
+import { Link, useNavigate } from 'react-router-dom'; // Import Link from React Router
 import { db } from '../../firebase';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 import CourseModal from './CourseModal'; // Adjust the import path accordingly
+import { Card, Flex, Modal, Typography } from 'antd';
+import { StepForwardOutlined } from '@ant-design/icons';
+import Meta from 'antd/es/card/Meta';
+const { Text } = Typography;
 
 function AllCourses() {
-    const [showModal, setShowModal] = useState(false);
-    const [courses, setCourses] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const navigate = useNavigate();
+  const handleShow = () => setShowModal(true);
+  const handleClose = () => setShowModal(false);
 
-    const handleShow = () => setShowModal(true);
-    const handleClose = () => setShowModal(false);
+  const fetchCourses = async () => {
+    const querySnapshot = await getDocs(collection(db, 'Courses'));
+    const coursesList = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setCourses(coursesList);
+  };
 
-    const fetchCourses = async () => {
-        const querySnapshot = await getDocs(collection(db, "Courses"));
-        const coursesList = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-        setCourses(coursesList);
-    };
+  const handleSave = async (data) => {
+    try {
+      const docRef = await addDoc(collection(db, 'Courses'), {
+        courseName: data.courseName,
+        subHeading: data.subHeading,
+        price: data.price,
+        createdAt: new Date(), // Add a timestamp if needed
+      });
+      console.log('Document written with ID: ', docRef.id);
+      fetchCourses(); // Refresh the list of courses after saving
+    } catch (e) {
+      console.error('Error adding document: ', e);
+    }
+  };
 
-    const handleSave = async (data) => {
-        try {
-            const docRef = await addDoc(collection(db, "Courses"), {
-                courseName: data.courseName,
-                subHeading: data.subHeading,
-                price: data.price,
-                createdAt: new Date(), // Add a timestamp if needed
-            });
-            console.log("Document written with ID: ", docRef.id);
-            fetchCourses(); // Refresh the list of courses after saving
-        } catch (e) {
-            console.error("Error adding document: ", e);
-        }
-    };
+  useEffect(() => {
+    fetchCourses(); // Fetch the courses when the component mounts
+  }, []);
 
-    useEffect(() => {
-        fetchCourses(); // Fetch the courses when the component mounts
-    }, []);
+  return (
+    <>
+      <div className="App p-4">
+        <button
+          onClick={handleShow}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+        >
+          Create Course
+        </button>
 
-    return (
-        <div className="App p-4">
-            <button
-                onClick={handleShow}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-            >
-                Create Course
-            </button>
-
-            <CourseModal show={showModal} handleClose={handleClose} handleSave={handleSave} />
-
-            <div className="mt-8">
-                <h2 className="text-[20px] font-semibold ">On Going Courses</h2>
-                <div className="mt-4 space-y-4 flex justify-start items-end">
-                    {courses.map((course) => (
-                            <Link to={`/courses/${course.id}`} key={course.id} className='w-full max-w-[272px] px-[13px] py-[12px] rounded-[10px] border border-[#EDEDED]'>
-                                <div className=' w-full h-45 bg-slate-400 rounded-[10px]'></div>
-                                <h3 className="text-md font-bold">{course.courseName}</h3>
-                                <p className="text-sm text-[#2D3748]">{course.subHeading}</p>
-                                <p className="text-sm font-bold text-[#2D3748]">₹{course.price}</p>
-                            </Link>
-                    ))}
-                </div>
-            </div>
+        <div className="mt-8">
+          <h2 className="text-[20px] font-semibold pb-5">On Going Courses</h2>
+          <Flex wrap gap={20}>
+            {courses.map((course) => (
+              <Card
+                onClick={() => navigate(`/view-courses/${course.id}`)}
+                style={{ width: 300, cursor: 'pointer' }}
+                cover={
+                  <img
+                    alt="example"
+                    src="https://cdn.prod.website-files.com/5a9ee6416e90d20001b20038/64f5c1c1f5723d7453a3de42_Rectangle%20(94).svg"
+                  />
+                }
+                actions={[
+                  <Flex justify="center">
+                    <StepForwardOutlined style={{ fontSize: '16px' }} />
+                    <Text key={'resume'}>Resume</Text>
+                  </Flex>,
+                ]}
+              >
+                <Meta
+                  title={course.courseName !== '' ? course.courseName : 'Demo'}
+                  description={
+                    course.subHeading !== '' ? course.subHeading : 'Subheading'
+                  }
+                />
+                <Flex style={{ marginTop: '10px' }}>
+                  ₹{course.price !== '' ? course.price : '100'}
+                </Flex>
+              </Card>
+            ))}
+          </Flex>
         </div>
-    );
+      </div>
+      <Modal
+        title="Enter Course Details"
+        open={showModal}
+        footer={null}
+        centered
+        destroyOnClose
+        onCancel={handleClose}
+      >
+        <CourseModal handleClose={handleClose} handleSave={handleSave} />
+      </Modal>
+    </>
+  );
 }
 
 export default AllCourses;

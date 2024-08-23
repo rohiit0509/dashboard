@@ -4,9 +4,9 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import DefaultLayout from './layout/DefaultLayout';
 import { AuthProvider } from './helper/auth';
-import routespath from './route';
-import ProtectedRoutes from './route/private';
-import PublicRoutes from './route/public';
+import routespath from './routes';
+import ProtectedRoutes from './routes/private';
+import PublicRoutes from './routes/public';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);

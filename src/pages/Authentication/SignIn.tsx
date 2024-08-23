@@ -2,9 +2,10 @@ import React, { useContext, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import LogoDark from '../../images/logo/logo-dark.svg';
 import Logo from '../../images/logo/logo.svg';
-import { app } from '../../firebase';
+import { app, db } from '../../firebase';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { AuthContext } from '../../helper/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,13 +13,29 @@ const SignIn: React.FC = () => {
   const navigate = useNavigate();
   const auth = getAuth(app);
   const { currentUser } = useContext(AuthContext);
-
+  interface UserData {
+    email?: string;
+    role?: string;
+  }
   const handleSignIn = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
       console.log(email, password);
       
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      const user = userCredential.user;
+    
+      const userDoc = doc(db, "users", user.uid);
+      const userDocSnapshot = await getDoc(userDoc);
+  console.log("asdfasdf",userCredential, user, userDoc, userDocSnapshot)
+      if (!userDocSnapshot.exists()) {
+        const userData: UserData = {
+          email: user?.email as string,
+          role: "user",
+        };
+        await setDoc(userDoc, userData);
+      }
       navigate('/dashboard');
     } catch (error) {
       console.error('Error signing in:', error);
