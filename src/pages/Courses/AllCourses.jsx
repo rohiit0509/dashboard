@@ -32,6 +32,7 @@ function AllCourses() {
         price: data.price,
         createdAt: new Date(), // Add a timestamp if needed
       });
+      handleClose()
       console.log('Document written with ID: ', docRef.id);
       fetchCourses(); // Refresh the list of courses after saving
     } catch (e) {

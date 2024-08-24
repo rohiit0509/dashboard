@@ -28,7 +28,7 @@ const SignIn: React.FC = () => {
     
       const userDoc = doc(db, "users", user.uid);
       const userDocSnapshot = await getDoc(userDoc);
-  console.log("asdfasdf",userCredential, user, userDoc, userDocSnapshot)
+      
       if (!userDocSnapshot.exists()) {
         const userData: UserData = {
           email: user?.email as string,

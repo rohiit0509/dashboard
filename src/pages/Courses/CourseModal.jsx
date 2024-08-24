@@ -2,17 +2,14 @@ import { Button, Flex, Form, Input } from 'antd';
 import React from 'react';
 
 function CourseModal({ handleSave, handleClose }) {
-  const onSave = (values) => {
-    console.log('asdfads', values);
-    handleSave(values);
-  };
+  const onSave = (values) => handleSave(values);
 
   return (
     <Form layout="vertical" onFinish={onSave}>
       <Form.Item
         label="Course Name"
         name="courseName"
-        rules={[{ required: true, message: 'Please input your course name!' }]}
+        rules={[{ required: true, message: 'Please enter course name' }]}
       >
         <Input placeholder="Enter course name" />
       </Form.Item>
@@ -20,7 +17,7 @@ function CourseModal({ handleSave, handleClose }) {
       <Form.Item
         label="Sub Heading"
         name={'subHeading'}
-        rules={[{ required: true, message: 'Please input your sub heading!' }]}
+        rules={[{ required: true, message: 'Please enter sub heading' }]}
       >
         <Input placeholder="Enter sub heading" />
       </Form.Item>
@@ -31,7 +28,7 @@ function CourseModal({ handleSave, handleClose }) {
         rules={[
           {
             required: true,
-            message: 'Please input your price!',
+            message: 'Please enter price',
           },
         ]}
       >
@@ -40,7 +37,7 @@ function CourseModal({ handleSave, handleClose }) {
       <Form.Item>
         <Flex justify="end" gap={5}>
           <Button type="default" onClick={handleClose}>
-            close
+            Close
           </Button>
           <Button type="primary" htmlType="submit">
             Save Changes
