@@ -1,26 +1,38 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { Button, Flex, Layout, Menu, theme, Tooltip } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getAuth, signOut } from "firebase/auth";
 import { app } from '../firebase';
 import { menuItems } from './data';
 
-
 const { Header, Sider, Content } = Layout;
 
-const DefaultLayout:React.FC<{ children: ReactNode }>= ({children}) => {
+const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  // Determine the default selected key based on the current route
+  const getDefaultSelectedKey = () => {
+    const selectedItem = menuItems.find((menuItem) =>
+      location.pathname.startsWith(menuItem.route)
+    );
+    return selectedItem ? selectedItem.key : '1'; // Fallback to '1' if no match
+  };
 
+  const [defaultSelectedKey, setDefaultSelectedKey] = useState(getDefaultSelectedKey());
+
+  useEffect(() => {
+    setDefaultSelectedKey(getDefaultSelectedKey());
+  }, [location]);
 
   const handleMenuClick = (item: { key: string }) => {
     const selectedItem = menuItems.find((menuItem) => menuItem.key === item.key);
@@ -28,15 +40,16 @@ const DefaultLayout:React.FC<{ children: ReactNode }>= ({children}) => {
       navigate(selectedItem.route);
     }
   };
+
   const handleLogout = async () => {
     const auth = getAuth(app);
     try {
-       await signOut(auth);
-       console.log('User signed out successfully');
+      await signOut(auth);
+      console.log('User signed out successfully');
     } catch (error) {
-       console.error('Error signing out:', error);
+      console.error('Error signing out:', error);
     }
-   };
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -45,7 +58,7 @@ const DefaultLayout:React.FC<{ children: ReactNode }>= ({children}) => {
         <Menu
           theme="light"
           mode="inline"
-          defaultSelectedKeys={['1']}
+          selectedKeys={[defaultSelectedKey]}
           items={menuItems}
           onClick={handleMenuClick}
         />
@@ -67,9 +80,9 @@ const DefaultLayout:React.FC<{ children: ReactNode }>= ({children}) => {
                 height: 64,
               }}
             />
-           <Tooltip title="log out">
-           <Button type="text" icon={<LogoutOutlined />} onClick={handleLogout} />
-           </Tooltip>
+            <Tooltip title="log out">
+              <Button type="text" icon={<LogoutOutlined />} onClick={handleLogout} />
+            </Tooltip>
           </Flex>
         </Header>
         <Content

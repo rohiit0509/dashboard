@@ -26,6 +26,7 @@ function CourseView() {
     topicIndex: null,
     subtopicIndex: null,
   });
+  console.log('asfsfdfs', topics);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [activeKey, setActiveKey] = useState<string | null>(null);
@@ -44,16 +45,6 @@ function CourseView() {
         const courseData = docSnap.data() as Course;
         setCourse(courseData);
         setTopics(courseData.topics || []);
-
-        // Automatically select the first topic or subtopic if available
-        if (courseData.topics.length > 0) {
-          const firstTopic = courseData.topics[0];
-          if (firstTopic.subtopics && firstTopic.subtopics.length > 0) {
-            handleSubtopicSelect(0, 0); // Select first subtopic
-          } else {
-            handleTopicSelect(0); // Select first topic
-          }
-        }
       } else {
         console.error('No such document exists!');
       }
@@ -71,17 +62,20 @@ function CourseView() {
 
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            setIsAdmin(userData.role === 'admin');
+            if (userData.role == 'admin') setIsAdmin(true);
+            else setIsAdmin(false);
           } else {
             console.log('No such user document!');
+            return null;
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
+          return null;
         }
       }
     };
     fetchUserData();
-  }, [currentUser]);
+  }, []);
 
   const handleTopicChange = (
     index: number,
@@ -163,16 +157,18 @@ function CourseView() {
         [{ list: 'ordered' }, { list: 'bullet' }],
         [{ align: [] }],
       ],
+      // handlers: {
+      //   video: () => handleVideoUpload(),
+      // },
     },
   };
-
   return (
     <Layout style={{ minHeight: '97%' }}>
       <Sider width={230}>
         <Menu
           mode="inline"
           selectedKeys={[activeKey || '']}
-          style={{ height: '100%', borderRight: 0 }}
+          style={{ height: '100%', borderRight: 0, overflow: 'auto' }}
         >
           <Flex justify="space-between" align="center">
             <Typography.Title level={5}>{course.courseName}</Typography.Title>
@@ -264,12 +260,23 @@ function CourseView() {
           {isEditing ? (
             <ReactQuill
               className="border rounded-md"
+              style={{ maxHeight: '800px', height: '100%', overflow: 'auto' }}
               modules={modules}
               value={selectedContent}
               onChange={handleContentChange}
             />
           ) : (
-            <div dangerouslySetInnerHTML={{ __html: selectedContent }} />
+            <Flex justify="center" align="center" className='h-full'>
+              {selectedContent == '' ? (
+                <Typography.Title>Course Details</Typography.Title>
+              ) : (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: selectedContent,
+                  }}
+                />
+              )}
+            </Flex>
           )}
         </Content>
       </Layout>
