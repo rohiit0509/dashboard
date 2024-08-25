@@ -265,18 +265,16 @@ function CourseView() {
               value={selectedContent}
               onChange={handleContentChange}
             />
-          ) : (
-            <Flex justify="center" align="center" className='h-full'>
-              {selectedContent == '' ? (
-                <Typography.Title>Course Details</Typography.Title>
-              ) : (
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: selectedContent,
-                  }}
-                />
-              )}
+          ) : selectedContent == '' ? (
+            <Flex justify="center" align="center">
+              <Typography.Title>Course Details</Typography.Title>
             </Flex>
+          ) : (
+            <div
+              dangerouslySetInnerHTML={{
+                __html: selectedContent,
+              }}
+            />
           )}
         </Content>
       </Layout>
