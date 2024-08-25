@@ -1,36 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { Layout, Menu, Button, Input } from 'antd';
+import { Layout, Menu, Button, Input, Typography, Flex } from 'antd';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import {
+  CloseOutlined,
+  EditOutlined,
+  PlusCircleOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
+import { AuthContext } from '../../helper/auth';
+import { Course, SelectedIndexes, Topic } from '../../types/courses';
 
 const { Sider, Content } = Layout;
 
-interface Subtopic {
-  name: string;
-  content: string;
-}
-
-interface Topic {
-  name: string;
-  content: string;
-  subtopics: Subtopic[];
-}
-
-interface Course {
-  courseName: string;
-  topics: Topic[];
-}
-
-interface SelectedIndexes {
-  topicIndex: number | null;
-  subtopicIndex: number | null;
-}
-
-function CourseView({ isAdmin }: { isAdmin: boolean }) {
-  isAdmin = true;
+function CourseView() {
+  const { currentUser } = useContext(AuthContext);
   const { courseId } = useParams();
   const [course, setCourse] = useState<Course | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -40,7 +27,8 @@ function CourseView({ isAdmin }: { isAdmin: boolean }) {
     subtopicIndex: null,
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [activeKey, setActiveKey] = useState<string | null>(null); // State to manage active menu item
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [activeKey, setActiveKey] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -56,6 +44,16 @@ function CourseView({ isAdmin }: { isAdmin: boolean }) {
         const courseData = docSnap.data() as Course;
         setCourse(courseData);
         setTopics(courseData.topics || []);
+
+        // Automatically select the first topic or subtopic if available
+        if (courseData.topics.length > 0) {
+          const firstTopic = courseData.topics[0];
+          if (firstTopic.subtopics && firstTopic.subtopics.length > 0) {
+            handleSubtopicSelect(0, 0); // Select first subtopic
+          } else {
+            handleTopicSelect(0); // Select first topic
+          }
+        }
       } else {
         console.error('No such document exists!');
       }
@@ -63,6 +61,27 @@ function CourseView({ isAdmin }: { isAdmin: boolean }) {
 
     fetchCourse();
   }, [courseId]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (currentUser?.uid) {
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setIsAdmin(userData.role === 'admin');
+          } else {
+            console.log('No such user document!');
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+    fetchUserData();
+  }, [currentUser]);
 
   const handleTopicChange = (
     index: number,
@@ -100,7 +119,7 @@ function CourseView({ isAdmin }: { isAdmin: boolean }) {
   const handleTopicSelect = (index: number) => {
     setSelectedIndexes({ topicIndex: index, subtopicIndex: null });
     setSelectedContent(topics[index].content || '');
-    setActiveKey(`topic-${index}`); // Set active key for highlighting
+    setActiveKey(`topic-${index}`);
   };
 
   const handleSubtopicSelect = (topicIndex: number, subtopicIndex: number) => {
@@ -108,7 +127,7 @@ function CourseView({ isAdmin }: { isAdmin: boolean }) {
     setSelectedContent(
       topics[topicIndex].subtopics[subtopicIndex].content || '',
     );
-    setActiveKey(`subtopic-${topicIndex}-${subtopicIndex}`); // Set active key for highlighting
+    setActiveKey(`subtopic-${topicIndex}-${subtopicIndex}`);
   };
 
   const handleSave = async () => {
@@ -134,7 +153,7 @@ function CourseView({ isAdmin }: { isAdmin: boolean }) {
   };
 
   if (!course) return <div>Loading...</div>;
-  const handleVideoUpload = () => {};
+
   const modules = {
     toolbar: {
       container: [
@@ -144,20 +163,34 @@ function CourseView({ isAdmin }: { isAdmin: boolean }) {
         [{ list: 'ordered' }, { list: 'bullet' }],
         [{ align: [] }],
       ],
-      handlers: {
-        video: () => handleVideoUpload(),
-      },
     },
   };
+
   return (
-    <Layout style={{ minHeight: '100%' }}>
-      <Sider width={250} className="site-layout-background">
+    <Layout style={{ minHeight: '97%' }}>
+      <Sider width={230}>
         <Menu
           mode="inline"
           selectedKeys={[activeKey || '']}
           style={{ height: '100%', borderRight: 0 }}
         >
-          <Menu.Item key="courseName">{course.courseName}</Menu.Item>
+          <Flex justify="space-between" align="center">
+            <Typography.Title level={5}>{course.courseName}</Typography.Title>
+            {isAdmin && !isEditing && (
+              <Button
+                type="text"
+                onClick={() => setIsEditing(true)}
+                icon={<EditOutlined />}
+              />
+            )}
+            {isAdmin && isEditing && (
+              <Button
+                type="text"
+                onClick={() => setIsEditing(false)}
+                icon={<CloseOutlined />}
+              />
+            )}
+          </Flex>
           {topics?.map((topic, topicIndex) => (
             <Menu.SubMenu
               key={`topic-${topicIndex}`}
@@ -195,25 +228,33 @@ function CourseView({ isAdmin }: { isAdmin: boolean }) {
                 </Menu.Item>
               ))}
               {isEditing && (
-                <Button type="dashed" onClick={() => addSubtopic(topicIndex)}>
-                  Add Subtopic
-                </Button>
+                <Menu.Item>
+                  <Button
+                    type="dashed"
+                    onClick={() => addSubtopic(topicIndex)}
+                    icon={<PlusCircleOutlined />}
+                  >
+                    Add Subtopic
+                  </Button>
+                </Menu.Item>
               )}
             </Menu.SubMenu>
           ))}
+          {isEditing && (
+            <Menu.Item>
+              <Button
+                type="dashed"
+                onClick={addTopic}
+                icon={<PlusOutlined />}
+                block
+              >
+                Add Topic
+              </Button>
+            </Menu.Item>
+          )}
         </Menu>
         {isEditing && (
-          <Button type="dashed" onClick={addTopic}>
-            Add Topic
-          </Button>
-        )}
-        {isAdmin && !isEditing && (
-          <Button type="default" onClick={() => setIsEditing(true)} block>
-            Edit
-          </Button>
-        )}
-        {isEditing && (
-          <Button type="default" onClick={handleSave} block>
+          <Button type="default" onClick={handleSave}>
             Save
           </Button>
         )}
@@ -222,8 +263,8 @@ function CourseView({ isAdmin }: { isAdmin: boolean }) {
         <Content style={{ padding: 15 }}>
           {isEditing ? (
             <ReactQuill
-              // className="border rounded-md height-500"
-              // modules={modules}
+              className="border rounded-md"
+              modules={modules}
               value={selectedContent}
               onChange={handleContentChange}
             />
