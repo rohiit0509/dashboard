@@ -35,6 +35,7 @@ function AllCourses() {
       });
       handleClose();
       console.log('Document written with ID: ', docRef.id);
+      navigate(`/view-courses/${docRef.id}`)
       fetchCourses();
     } catch (e) {
       console.error('Error adding document: ', e);

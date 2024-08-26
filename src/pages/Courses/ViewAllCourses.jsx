@@ -33,6 +33,7 @@ function ViewAllCourses() {
         createdAt: new Date(), // Add a timestamp if needed
       });
       console.log('Document written with ID: ', docRef.id);
+      navigate(`/view-courses/${docRef.id}`)
       fetchCourses(); // Refresh the list of courses after saving
     } catch (e) {
       console.error('Error adding document: ', e);
