@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -14,6 +14,7 @@ import {
 import { AuthContext } from '../../helper/auth';
 import { Course, SelectedIndexes, Topic } from '../../types/courses';
 import { TextEditorWrapper } from '../../styles/textEditor';
+import { uploadVideo } from '../../helper/videoUpload';
 
 const { Sider, Content } = Layout;
 
@@ -27,10 +28,11 @@ function CourseView() {
     topicIndex: null,
     subtopicIndex: null,
   });
-  console.log('asfsfdfs', topics);
+
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [activeKey, setActiveKey] = useState<string | null>(null);
+  const quillRef = useRef<ReactQuill>(null);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -158,11 +160,26 @@ function CourseView() {
         [{ list: 'ordered' }, { list: 'bullet' }],
         [{ align: [] }],
       ],
-      // handlers: {
-      //   video: () => handleVideoUpload(),
-      // },
+      handlers: {
+        video: () => {
+          const input = document.createElement('input');
+          input.setAttribute('type', 'file');
+          input.setAttribute('accept', 'video/*');
+          input.addEventListener('change', async () => {
+            const file = input.files?.[0];
+            if (file) {
+              const videoURL = await uploadVideo(file);
+              const quill = quillRef.current?.getEditor();
+              const range = quill?.getSelection();
+              quill?.insertEmbed(range?.index || 0, 'video', videoURL);
+            }
+          });
+          input.click();
+        },
+      },
     },
   };
+  
   return (
     <Layout style={{ minHeight: '97%' }}>
       <Sider width={230}>
@@ -261,6 +278,7 @@ function CourseView() {
           {isEditing ? (
             <TextEditorWrapper>
               <ReactQuill
+                      ref={quillRef}
                 theme="snow"
                 modules={modules}
                 value={selectedContent}
