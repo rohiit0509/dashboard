@@ -1,4 +1,5 @@
 import { Button, Flex, Form, Input } from 'antd';
+import TextArea from 'antd/es/input/TextArea';
 import React from 'react';
 
 function CourseModal({ handleSave, handleClose }) {
@@ -9,17 +10,15 @@ function CourseModal({ handleSave, handleClose }) {
       <Form.Item
         label="Course Name"
         name="courseName"
-        rules={[{ required: true, message: 'Please enter course name' }]}
+        rules={[
+          {
+            required: true,
+            message: 'Please enter course name',
+            whitespace: true,
+          },
+        ]}
       >
         <Input placeholder="Enter course name" />
-      </Form.Item>
-
-      <Form.Item
-        label="Sub Heading"
-        name={'subHeading'}
-        rules={[{ required: true, message: 'Please enter sub heading' }]}
-      >
-        <Input placeholder="Enter sub heading" />
       </Form.Item>
 
       <Form.Item
@@ -29,10 +28,24 @@ function CourseModal({ handleSave, handleClose }) {
           {
             required: true,
             message: 'Please enter price',
+            whitespace: true,
           },
         ]}
       >
         <Input type="number" placeholder="Enter price" />
+      </Form.Item>
+      <Form.Item
+        label="Description"
+        name={'subHeading'}
+        rules={[
+          {
+            required: true,
+            message: 'Please enter description',
+            whitespace: true,
+          },
+        ]}
+      >
+        <TextArea placeholder="Enter Description" rows={4} />
       </Form.Item>
       <Form.Item>
         <Flex justify="end" gap={5}>

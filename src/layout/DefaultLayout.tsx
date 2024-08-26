@@ -6,9 +6,11 @@ import {
 } from '@ant-design/icons';
 import { Button, Flex, Layout, Menu, theme, Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth, signOut } from 'firebase/auth';
 import { app } from '../firebase';
 import { menuItems } from './data';
+import { LogoContainer, LogoWrapper } from '../styles/logo';
+import LogoImage from '../assets/svgs/LogoImage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -20,22 +22,25 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  // Determine the default selected key based on the current route
   const getDefaultSelectedKey = () => {
     const selectedItem = menuItems.find((menuItem) =>
-      location.pathname.startsWith(menuItem.route)
+      location.pathname.startsWith(menuItem.route),
     );
-    return selectedItem ? selectedItem.key : '1'; // Fallback to '1' if no match
+    return selectedItem ? selectedItem.key : '1';
   };
 
-  const [defaultSelectedKey, setDefaultSelectedKey] = useState(getDefaultSelectedKey());
+  const [defaultSelectedKey, setDefaultSelectedKey] = useState(
+    getDefaultSelectedKey(),
+  );
 
   useEffect(() => {
     setDefaultSelectedKey(getDefaultSelectedKey());
   }, [location]);
 
   const handleMenuClick = (item: { key: string }) => {
-    const selectedItem = menuItems.find((menuItem) => menuItem.key === item.key);
+    const selectedItem = menuItems.find(
+      (menuItem) => menuItem.key === item.key,
+    );
     if (selectedItem && selectedItem.route) {
       navigate(selectedItem.route);
     }
@@ -54,7 +59,14 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed} theme="light">
-        <div className="pt-20" />
+        <LogoWrapper>
+          {collapsed && (
+            <LogoContainer>
+              <img src="/src/assets/imgs/logo.png" alt="logo" />
+            </LogoContainer>
+          )}
+          {!collapsed && <LogoImage />}
+        </LogoWrapper>
         <Menu
           theme="light"
           mode="inline"
@@ -80,8 +92,12 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
                 height: 64,
               }}
             />
-            <Tooltip title="log out">
-              <Button type="text" icon={<LogoutOutlined />} onClick={handleLogout} />
+            <Tooltip title="Sign Out">
+              <Button
+                type="text"
+                icon={<LogoutOutlined />}
+                onClick={handleLogout}
+              />
             </Tooltip>
           </Flex>
         </Header>

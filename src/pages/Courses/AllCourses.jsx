@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'; // Import Link from React 
 import { db } from '../../firebase';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 import CourseModal from './CourseModal'; // Adjust the import path accordingly
-import { Card, Flex, Modal, Typography } from 'antd';
+import { Button, Card, Flex, Modal, Row, Typography } from 'antd';
 import { StepForwardOutlined } from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
-const { Text } = Typography;
+import { CardWrapper, OfferContainer } from '../../styles/table';
+const { Title, Text } = Typography;
 
 function AllCourses() {
   const [showModal, setShowModal] = useState(false);
@@ -58,6 +59,7 @@ function AllCourses() {
           <h2 className="text-[20px] font-semibold pb-5">On Going Courses</h2>
           <Flex wrap gap={20}>
             {courses.map((course) => (
+              <CardWrapper>
               <Card
                 hoverable
                 onClick={() => navigate(`/view-courses/${course.id}`)}
@@ -69,22 +71,32 @@ function AllCourses() {
                   />
                 }
                 actions={[
-                  <Flex justify="center">
-                    <StepForwardOutlined style={{ fontSize: '16px' }} />
-                    <Text key={'resume'}>Resume</Text>
-                  </Flex>,
+                  <Button block type="default" icon={<StepForwardOutlined />}>
+                    Start
+                  </Button>,
                 ]}
               >
                 <Meta
-                  title={course.courseName !== '' ? course.courseName : 'Demo'}
+                  title={
+                    course.courseName !== '' ? course.courseName : 'Demo'
+                  }
                   description={
-                    course.subHeading !== '' ? course.subHeading : 'Subheading'
+                    course.subHeading !== ''
+                      ? course.subHeading
+                      : 'Subheading'
                   }
                 />
-                <Flex style={{ marginTop: '10px' }}>
-                  ₹{course.price !== '' ? course.price : '100'}
-                </Flex>
+                <Row justify={'space-between'} style={{ marginTop: '20px' }}>
+                  <Title level={5}>
+                    ₹{course.price !== '' ? course.price : '100'}
+                  </Title>
+                  <OfferContainer>
+                    <Title level={5}>{`60%off`}</Title>
+                    <Text className="text-xs">Limited Time offer</Text>
+                  </OfferContainer>
+                </Row>
               </Card>
+            </CardWrapper>
             ))}
           </Flex>
         </div>

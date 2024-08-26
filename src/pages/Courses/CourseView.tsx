@@ -13,6 +13,7 @@ import {
 } from '@ant-design/icons';
 import { AuthContext } from '../../helper/auth';
 import { Course, SelectedIndexes, Topic } from '../../types/courses';
+import { TextEditorWrapper } from '../../styles/textEditor';
 
 const { Sider, Content } = Layout;
 
@@ -258,13 +259,14 @@ function CourseView() {
       <Layout>
         <Content style={{ padding: 15 }}>
           {isEditing ? (
-            <ReactQuill
-              className="border rounded-md"
-              style={{ maxHeight: '800px', height: '100%', overflow: 'auto' }}
-              modules={modules}
-              value={selectedContent}
-              onChange={handleContentChange}
-            />
+            <TextEditorWrapper>
+              <ReactQuill
+                theme="snow"
+                modules={modules}
+                value={selectedContent}
+                onChange={handleContentChange}
+              />
+            </TextEditorWrapper>
           ) : selectedContent == '' ? (
             <Flex justify="center" align="center">
               <Typography.Title>Course Details</Typography.Title>

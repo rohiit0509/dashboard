@@ -8,13 +8,15 @@ import {
   doc,
   getDoc,
   setDoc,
-  deleteField
+  deleteField,
 } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Question from './Question';
 import QuestionNavigation from './QuestionNavigation';
 import Timer from './Timer';
+import CheerIcon from '../../assets/svgs/CheerIcon';
+import { Button, Flex, Result } from 'antd';
 
 const TakeTest = () => {
   const { testId } = useParams();
@@ -27,7 +29,7 @@ const TakeTest = () => {
   const [test, setTest] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const userId = 'USER_ID'; // Replace with actual user ID
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchTestAndQuestions = async () => {
       setIsLoading(true);
@@ -39,7 +41,12 @@ const TakeTest = () => {
           console.error('No such test document!');
         }
 
-        const questionsCollection = collection(db, 'Tests', testId, 'Questions');
+        const questionsCollection = collection(
+          db,
+          'Tests',
+          testId,
+          'Questions',
+        );
         const querySnapshot = await getDocs(questionsCollection);
         const questions = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -54,7 +61,8 @@ const TakeTest = () => {
         if (userAnswersDoc.exists()) {
           const userAnswersData = userAnswersDoc.data();
           setSelectedOptions(
-            userAnswersData.selectedOptions || Array(questions.length).fill(null),
+            userAnswersData.selectedOptions ||
+              Array(questions.length).fill(null),
           );
           setAttempted(
             userAnswersData.attempted || Array(questions.length).fill(false),
@@ -171,10 +179,14 @@ const TakeTest = () => {
           marks: updatedMarks,
           totalMarks: totalMarks,
         },
-        { merge: true }
+        { merge: true },
       );
 
-      const questionRef = doc(testRef, 'Questions', quizData[currentQuestion].id);
+      const questionRef = doc(
+        testRef,
+        'Questions',
+        quizData[currentQuestion].id,
+      );
       await updateDoc(questionRef, {
         userAnswer: deleteField(),
       });
@@ -184,23 +196,21 @@ const TakeTest = () => {
   };
 
   const handleSelectQuestion = (index) => {
-  setCurrentQuestion(index);
-  setAttempted((prevAttempted) => {
-    const newAttempted = [...prevAttempted];
-    newAttempted[index] = selectedOptions[index] !== null;
-    return newAttempted;
-  });
-};
+    setCurrentQuestion(index);
+    setAttempted((prevAttempted) => {
+      const newAttempted = [...prevAttempted];
+      newAttempted[index] = selectedOptions[index] !== null;
+      return newAttempted;
+    });
+  };
 
-useEffect(() => {
-  setAttempted((prevAttempted) => {
-    const newAttempted = [...prevAttempted];
-    newAttempted[currentQuestion] = selectedOptions[currentQuestion] !== null;
-    return newAttempted;
-  });
-}, [currentQuestion, selectedOptions]);
-
- 
+  useEffect(() => {
+    setAttempted((prevAttempted) => {
+      const newAttempted = [...prevAttempted];
+      newAttempted[currentQuestion] = selectedOptions[currentQuestion] !== null;
+      return newAttempted;
+    });
+  }, [currentQuestion, selectedOptions]);
 
   const handleOptionChange = async (index) => {
     setSelectedOptions((prevSelectedOptions) => {
@@ -296,9 +306,21 @@ useEffect(() => {
 
   if (quizEnded) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <h2 className="text-3xl font-bold">The quiz has ended. Thank you!</h2>
-      </div>
+      <Flex justify="center" align="center" style={{ height: '100%' }}>
+        <Result
+          icon={
+            <Flex justify="center">
+              <CheerIcon />
+            </Flex>
+          }
+          title={'The quiz has ended. Thank you!'}
+          extra={[
+            <Button type="default" onClick={() => navigate('/all-results')}>
+              Check Result
+            </Button>,
+          ]}
+        />
+      </Flex>
     );
   }
 
@@ -358,7 +380,9 @@ useEffect(() => {
           <button
             onClick={handleFinish}
             className={`px-[18px] py-[11px] bg-[#E95744] text-white text-[14px] rounded-lg ${
-              currentQuestion === quizData.length - 1 ? 'opacity-100' : 'opacity-45'
+              currentQuestion === quizData.length - 1
+                ? 'opacity-100'
+                : 'opacity-45'
             }`}
           >
             Finish Test
