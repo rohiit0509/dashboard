@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Import Link from React Router
+import { useNavigate } from 'react-router-dom'; // Import Link from React Router
 import { db } from '../../firebase';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 import CourseModal from './CourseModal'; // Adjust the import path accordingly
@@ -33,16 +33,16 @@ function AllCourses() {
         price: data.price,
         createdAt: new Date(), // Add a timestamp if needed
       });
-      handleClose()
+      handleClose();
       console.log('Document written with ID: ', docRef.id);
-      fetchCourses(); // Refresh the list of courses after saving
+      fetchCourses();
     } catch (e) {
       console.error('Error adding document: ', e);
     }
   };
 
   useEffect(() => {
-    fetchCourses(); // Fetch the courses when the component mounts
+    fetchCourses();
   }, []);
 
   return (
@@ -60,43 +60,43 @@ function AllCourses() {
           <Flex wrap gap={20}>
             {courses.map((course) => (
               <CardWrapper>
-              <Card
-                hoverable
-                onClick={() => navigate(`/view-courses/${course.id}`)}
-                style={{ width: 300, cursor: 'pointer' }}
-                cover={
-                  <img
-                    alt="example"
-                    src="https://cdn.prod.website-files.com/5a9ee6416e90d20001b20038/64f5c1c1f5723d7453a3de42_Rectangle%20(94).svg"
+                <Card
+                  hoverable
+                  onClick={() => navigate(`/view-courses/${course.id}`)}
+                  style={{ width: 300, cursor: 'pointer' }}
+                  cover={
+                    <img
+                      alt="example"
+                      src="https://cdn.prod.website-files.com/5a9ee6416e90d20001b20038/64f5c1c1f5723d7453a3de42_Rectangle%20(94).svg"
+                    />
+                  }
+                  actions={[
+                    <Button block type="default" icon={<StepForwardOutlined />}>
+                      Start
+                    </Button>,
+                  ]}
+                >
+                  <Meta
+                    title={
+                      course.courseName !== '' ? course.courseName : 'Demo'
+                    }
+                    description={
+                      course.subHeading !== ''
+                        ? course.subHeading
+                        : 'Subheading'
+                    }
                   />
-                }
-                actions={[
-                  <Button block type="default" icon={<StepForwardOutlined />}>
-                    Start
-                  </Button>,
-                ]}
-              >
-                <Meta
-                  title={
-                    course.courseName !== '' ? course.courseName : 'Demo'
-                  }
-                  description={
-                    course.subHeading !== ''
-                      ? course.subHeading
-                      : 'Subheading'
-                  }
-                />
-                <Row justify={'space-between'} style={{ marginTop: '20px' }}>
-                  <Title level={5}>
-                    ₹{course.price !== '' ? course.price : '100'}
-                  </Title>
-                  <OfferContainer>
-                    <Title level={5}>{`60%off`}</Title>
-                    <Text className="text-xs">Limited Time offer</Text>
-                  </OfferContainer>
-                </Row>
-              </Card>
-            </CardWrapper>
+                  <Row justify={'space-between'} style={{ marginTop: '20px' }}>
+                    <Title level={5}>
+                      ₹{course.price !== '' ? course.price : '100'}
+                    </Title>
+                    <OfferContainer>
+                      <Title level={5}>{`60%off`}</Title>
+                      <Text className="text-xs">Limited Time offer</Text>
+                    </OfferContainer>
+                  </Row>
+                </Card>
+              </CardWrapper>
             ))}
           </Flex>
         </div>

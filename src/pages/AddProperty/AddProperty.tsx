@@ -52,7 +52,6 @@ const AddProperty = () => {
   };
   const onSubmit = async (data: any) => {
     setIsLoading(true);
-    console.log(data);
     const storage = getStorage(app);
     const storageRef = ref(storage, `images/${data.file[0].name}`);
     const uploadTask = uploadBytesResumable(storageRef, data.file[0]);
