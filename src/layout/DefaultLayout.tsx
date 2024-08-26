@@ -62,7 +62,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         <LogoWrapper>
           {collapsed && (
             <LogoContainer>
-              <img src="/src/assets/imgs/logo.png" alt="logo" />
+              <img src="/public/logo.png" alt="logo" />
             </LogoContainer>
           )}
           {!collapsed && <LogoImage />}
