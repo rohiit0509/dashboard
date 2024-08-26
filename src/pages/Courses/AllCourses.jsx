@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import Link from React Router
+import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
-import CourseModal from './CourseModal'; // Adjust the import path accordingly
-import { Button, Card, Flex, Modal, Row, Typography } from 'antd';
-import { StepForwardOutlined } from '@ant-design/icons';
+import {
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  deleteDoc,
+} from 'firebase/firestore';
+import CourseModal from './CourseModal';
+import { Button, Card, Flex, Modal, Row, Spin, Typography } from 'antd';
+import {
+  DeleteOutlined,
+  ExclamationCircleFilled,
+  StepForwardOutlined,
+} from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
 import { CardWrapper, OfferContainer } from '../../styles/table';
 const { Title, Text } = Typography;
+const { confirm } = Modal;
 
 function AllCourses() {
   const [showModal, setShowModal] = useState(false);
@@ -15,14 +26,22 @@ function AllCourses() {
   const navigate = useNavigate();
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchCourses = async () => {
-    const querySnapshot = await getDocs(collection(db, 'Courses'));
-    const coursesList = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setCourses(coursesList);
+    try {
+      setLoading(true);
+      const querySnapshot = await getDocs(collection(db, 'Courses'));
+      const coursesList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCourses(coursesList);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSave = async (data) => {
@@ -31,11 +50,11 @@ function AllCourses() {
         courseName: data.courseName,
         subHeading: data.subHeading,
         price: data.price,
-        createdAt: new Date(), // Add a timestamp if needed
+        createdAt: new Date(),
       });
       handleClose();
       console.log('Document written with ID: ', docRef.id);
-      navigate(`/view-courses/${docRef.id}`)
+      navigate(`/view-courses/${docRef.id}`);
       fetchCourses();
     } catch (e) {
       console.error('Error adding document: ', e);
@@ -46,9 +65,38 @@ function AllCourses() {
     fetchCourses();
   }, []);
 
+  const handleCourseDelete = async (courseId) => {
+    setLoading(true);
+    try {
+      const courseDocRef = doc(db, 'Courses', courseId);
+      await deleteDoc(courseDocRef);
+      fetchCourses();
+      setLoading(false);
+      console.log('Course deleted successfully');
+    } catch (error) {
+      setLoading(false);
+      console.error('Error deleting course:', error);
+      throw error;
+    }
+  };
+
+  const showConfirm = (courseId) => {
+    confirm({
+      title: 'Are you sure you want to delete this course?',
+      icon: <ExclamationCircleFilled />,
+      content: 'This action cannot be reversed',
+      okText: 'Yes',
+      okType: 'danger',
+      okButtonProps: { type: 'default' },
+      onOk() {
+        handleCourseDelete(courseId);
+      },
+    });
+  };
+
   return (
     <>
-      <div className="App p-4">
+      <Spin spinning={loading} centered>
         <button
           onClick={handleShow}
           className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
@@ -63,7 +111,6 @@ function AllCourses() {
               <CardWrapper>
                 <Card
                   hoverable
-                  onClick={() => navigate(`/view-courses/${course.id}`)}
                   style={{ width: 300, cursor: 'pointer' }}
                   cover={
                     <img
@@ -72,9 +119,20 @@ function AllCourses() {
                     />
                   }
                   actions={[
-                    <Button block type="default" icon={<StepForwardOutlined />}>
-                      Start
-                    </Button>,
+                    <Flex gap={5}>
+                      <Button
+                        block
+                        type="default"
+                        onClick={() => navigate(`/view-courses/${course.id}`)}
+                        icon={<StepForwardOutlined />}
+                      >
+                        Start
+                      </Button>
+                      <Button
+                        icon={<DeleteOutlined />}
+                        onClick={() => showConfirm(course.id)}
+                      />
+                    </Flex>,
                   ]}
                 >
                   <Meta
@@ -101,7 +159,7 @@ function AllCourses() {
             ))}
           </Flex>
         </div>
-      </div>
+      </Spin>
       <Modal
         title="Enter Course Details"
         open={showModal}
