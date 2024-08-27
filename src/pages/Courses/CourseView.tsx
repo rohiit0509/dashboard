@@ -65,8 +65,7 @@ function CourseView() {
 
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            if (userData.role == 'admin') setIsAdmin(true);
-            else setIsAdmin(false);
+            setIsAdmin(userData.role == 'admin');
           } else {
             console.log('No such user document!');
             return null;
@@ -127,11 +126,36 @@ function CourseView() {
     setActiveKey(`subtopic-${topicIndex}-${subtopicIndex}`);
   };
 
+  const filterBlankTopicsAndSubtopics = () => {
+    const filteredTopics = topics
+      .filter((topic) => topic.name.trim() !== '')
+      .map((topic) => ({
+        ...topic,
+        subtopics: topic.subtopics.filter(
+          (subtopic) => subtopic.name.trim() !== '',
+        ),
+      }));
+
+    setTopics(filteredTopics);
+  };
   const handleSave = async () => {
+    filterBlankTopicsAndSubtopics();
     if (courseId) {
       try {
+        const filteredTopics = topics
+          .filter((topic) => topic.name.trim() !== '')
+          .map((topic) => ({
+            ...topic,
+            subtopics: topic.subtopics.filter(
+              (subtopic) => subtopic.name.trim() !== '',
+            ),
+          }));
         const docRef = doc(db, 'Courses', courseId);
-        await setDoc(docRef, { ...course, topics }, { merge: true });
+        await setDoc(
+          docRef,
+          { ...course, topics: filteredTopics },
+          { merge: true },
+        );
         setIsEditing(false);
       } catch (error) {
         console.error('Error saving course:', error);
@@ -160,26 +184,29 @@ function CourseView() {
         [{ list: 'ordered' }, { list: 'bullet' }],
         [{ align: [] }],
       ],
-      handlers: {
-        video: () => {
-          const input = document.createElement('input');
-          input.setAttribute('type', 'file');
-          input.setAttribute('accept', 'video/*');
-          input.addEventListener('change', async () => {
-            const file = input.files?.[0];
-            if (file) {
-              const videoURL = await uploadVideo(file);
-              const quill = quillRef.current?.getEditor();
-              const range = quill?.getSelection();
-              quill?.insertEmbed(range?.index || 0, 'video', videoURL);
-            }
-          });
-          input.click();
-        },
-      },
+      // handlers: {
+      //   video: () => {
+      //     const input = document.createElement('input');
+      //     input.setAttribute('type', 'file');
+      //     input.setAttribute('accept', 'video/*');
+      //     input.addEventListener('change', async () => {
+      //       const file = input.files?.[0];
+      //       if (file) {
+      //         const videoURL = await uploadVideo(file);
+      //         const quill = quillRef.current?.getEditor();
+      //         const range = quill?.getSelection();
+      //         quill?.insertEmbed(range?.index || 0, 'video', videoURL);
+      //       }
+      //     });
+      //     input.click();
+      //   },
+      // },
     },
   };
-  
+  const handleExitEditMode = () => {
+    filterBlankTopicsAndSubtopics();
+    setIsEditing(false);
+  };
   return (
     <Layout style={{ minHeight: '97%' }}>
       <Sider width={230}>
@@ -200,7 +227,7 @@ function CourseView() {
             {isAdmin && isEditing && (
               <Button
                 type="text"
-                onClick={() => setIsEditing(false)}
+                onClick={handleExitEditMode}
                 icon={<CloseOutlined />}
               />
             )}
@@ -278,7 +305,7 @@ function CourseView() {
           {isEditing ? (
             <TextEditorWrapper>
               <ReactQuill
-                      ref={quillRef}
+                ref={quillRef}
                 theme="snow"
                 modules={modules}
                 value={selectedContent}
