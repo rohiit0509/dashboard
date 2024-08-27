@@ -16,7 +16,9 @@ const { Header, Sider, Content } = Layout;
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(
+    Boolean(localStorage.getItem('sidebar')),
+  );
   const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -59,7 +61,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed} theme="light">
-        <LogoWrapper>
+        <LogoWrapper onClick={() => navigate('/dashboard')}>
           {collapsed && (
             <LogoContainer>
               <img src="/logo.png" alt="logo" />
@@ -85,7 +87,10 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={() => {
+                localStorage.setItem('sidebar', String(!collapsed));
+                setCollapsed(!collapsed);
+              }}
               style={{
                 fontSize: '16px',
                 width: 64,

@@ -22,6 +22,7 @@ function CourseView() {
   const { currentUser } = useContext(AuthContext);
   const { courseId } = useParams();
   const [course, setCourse] = useState<Course | null>(null);
+  console.log('asdfsa324', course?.topics);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedContent, setSelectedContent] = useState<string>('');
   const [selectedIndexes, setSelectedIndexes] = useState<SelectedIndexes>({
@@ -110,12 +111,6 @@ function CourseView() {
 
     setTopics(newTopics);
     setSelectedContent(value);
-  };
-
-  const handleTopicSelect = (index: number) => {
-    setSelectedIndexes({ topicIndex: index, subtopicIndex: null });
-    setSelectedContent(topics[index].content || '');
-    setActiveKey(`topic-${index}`);
   };
 
   const handleSubtopicSelect = (topicIndex: number, subtopicIndex: number) => {
@@ -240,12 +235,10 @@ function CourseView() {
                   <Input
                     value={topic?.name}
                     onChange={(e) => handleTopicChange(topicIndex, e)}
-                    onClick={() => handleTopicSelect(topicIndex)}
+                    // onClick={() => handleTopicSelect(topicIndex)}
                   />
                 ) : (
-                  <span onClick={() => handleTopicSelect(topicIndex)}>
-                    {topic.name}
-                  </span>
+                  <span>{topic.name}</span>
                 )
               }
             >
