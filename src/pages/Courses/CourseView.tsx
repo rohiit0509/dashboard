@@ -112,7 +112,11 @@ function CourseView() {
     setTopics(newTopics);
     setSelectedContent(value);
   };
-
+  const handleTopicSelect = (index: number) => {
+    setSelectedIndexes({ topicIndex: index, subtopicIndex: null });
+    setSelectedContent(topics[index].content || '');
+    setActiveKey(`topic-${index}`);
+  };
   const handleSubtopicSelect = (topicIndex: number, subtopicIndex: number) => {
     setSelectedIndexes({ topicIndex, subtopicIndex });
     setSelectedContent(
@@ -238,7 +242,9 @@ function CourseView() {
                     // onClick={() => handleTopicSelect(topicIndex)}
                   />
                 ) : (
-                  <span>{topic.name}</span>
+                  <span
+                    onClick={() => handleTopicSelect(topicIndex)}
+                  >{topic.name}</span>
                 )
               }
             >
