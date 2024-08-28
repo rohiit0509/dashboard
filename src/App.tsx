@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
-
 import DefaultLayout from './layout/DefaultLayout';
 import { AuthProvider } from './helper/auth';
 import routespath from './routes';
@@ -22,21 +21,26 @@ function App() {
 
   return (
     <AuthProvider>
-
-        <Routes>
-
-          {
-            routespath.map((data, index) => {
-              const { path, component, restricted } = data;
-              return (
-                <Route key={index} path={path} element={restricted ? (<DefaultLayout><ProtectedRoutes component={component} /></DefaultLayout>) : (<PublicRoutes component={component} />)} />
-              )
-            })
-          }
-
-        </Routes>
-
-
+      <Routes>
+        {routespath.map((data, index) => {
+          const { path, component, restricted } = data;
+          return (
+            <Route
+              key={index}
+              path={path}
+              element={
+                restricted ? (
+                  <DefaultLayout>
+                    <ProtectedRoutes component={component} />
+                  </DefaultLayout>
+                ) : (
+                  <PublicRoutes component={component} />
+                )
+              }
+            />
+          );
+        })}
+      </Routes>
     </AuthProvider>
   );
 }

@@ -15,6 +15,7 @@ import LogoImage from '../assets/svgs/LogoImage';
 const { Header, Sider, Content } = Layout;
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const isAdmin = true
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(
     Boolean(localStorage.getItem('sidebar')),
@@ -39,12 +40,14 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     setDefaultSelectedKey(getDefaultSelectedKey());
   }, [location]);
 
-  const handleMenuClick = (item: { key: string }) => {
-    const selectedItem = menuItems.find(
-      (menuItem) => menuItem.key === item.key,
-    );
-    if (selectedItem && selectedItem.route) {
-      navigate(selectedItem.route);
+  const filteredMenuItems = menuItems.filter((item) =>
+    isAdmin ? true : item.roles.includes('user'),
+  );
+
+  const handleMenuClick = ({ key }: { key: string }) => {
+    const menuItem = filteredMenuItems.find((item) => item.key === key);
+    if (menuItem) {
+      navigate(menuItem.route);
     }
   };
 
@@ -73,7 +76,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           theme="light"
           mode="inline"
           selectedKeys={[defaultSelectedKey]}
-          items={menuItems}
+          items={filteredMenuItems}
           onClick={handleMenuClick}
         />
       </Sider>

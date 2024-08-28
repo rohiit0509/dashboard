@@ -17,6 +17,7 @@ import MyTable from "../pages/Form/tableDetails";
 import Settings from "../pages/Settings";
 import Tables from "../pages/Tables";
 import Buttons from "../pages/UiElements/Buttons";
+import NotFoundPage from "../components/NotFoundPage";
 
 const routespath=[
     {
@@ -108,15 +109,15 @@ const routespath=[
         restricted:true
 
     },
-    // {
-    //     path:"*",
-    //     component:<Error/>,
-    //     restricted:false
-
-    // },
     {
         path:"/settings",
         component:<Buttons/>,
+        restricted:true
+
+    },
+    {
+        path:"*",
+        component:<NotFoundPage/>,
         restricted:true
 
     },
