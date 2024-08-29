@@ -18,6 +18,7 @@ import Settings from "../pages/Settings";
 import Tables from "../pages/Tables";
 import Buttons from "../pages/UiElements/Buttons";
 import NotFoundPage from "../components/NotFoundPage";
+import SignUp from "../pages/Authentication/SignUp";
 
 const routespath=[
     {
@@ -26,13 +27,24 @@ const routespath=[
         restricted:false
 
     },
-    // {
-    //     path:"/dashboard",
-    //     component:<AddProperty/>,
-    //     restricted:true
+    {
+        path:"/admin-login",
+        component:<SignIn/>,
+        restricted:false
 
-    // },
+    },
+    {
+        path:"/register",
+        component:<SignUp/>,
+        restricted:false
 
+    },
+    {
+        path:"/",
+        component:<SignIn/>,
+        restricted:false
+
+    },
     {
         path:"/dashboard",
         component:<AddTest/>,
@@ -61,13 +73,11 @@ const routespath=[
 
     },
 
-    {
-        path:"/view-courses",
-        component:<ViewAllCourses/>,
-        restricted:true
-
-    },
-
+    // {
+    //     path:"/view-courses",
+    //     component:<ViewAllCourses/>,
+    //     restricted:true
+    // },
     {
         path:"/view-courses/:courseId",
         component:<CourseView/>,

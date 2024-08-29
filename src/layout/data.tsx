@@ -63,11 +63,11 @@ export const menuItems = [
     route: '/courses',
     roles: ['admin', 'user'], 
   },
-  {
-    key: '8',
-    icon: <BookOutlined />,
-    label: 'View Courses',
-    route: '/view-courses',
-    roles: ['admin', 'user'], 
-  },
+  // {
+  //   key: '8',
+  //   icon: <BookOutlined />,
+  //   label: 'View Courses',
+  //   route: '/view-courses',
+  //   roles: ['admin', 'user'], 
+  // },
 ];
