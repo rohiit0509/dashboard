@@ -51,7 +51,7 @@ const SignIn: React.FC = () => {
         await setDoc(userDoc, userData);
       }
       setLoading(false);
-      navigate('/dashboard');
+      navigate('/add-test');
     } catch (error) {
       setLoading(false);
       console.error('Error signing in:', error);
@@ -59,7 +59,7 @@ const SignIn: React.FC = () => {
   };
 
   if (currentUser) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to="/add-test" />;
   }
   return (
     <MainContainer justifyContent="center">

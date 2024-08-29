@@ -15,7 +15,7 @@ import LogoImage from '../assets/svgs/LogoImage';
 const { Header, Sider, Content } = Layout;
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const isAdmin = true
+  const isAdmin = false
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(
     Boolean(localStorage.getItem('sidebar')),
@@ -41,7 +41,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   }, [location]);
 
   const filteredMenuItems = menuItems.filter((item) =>
-    isAdmin ? true : item.roles.includes('user'),
+    isAdmin ? item.roles.includes('admin') : item.roles.includes('user'),
   );
 
   const handleMenuClick = ({ key }: { key: string }) => {
@@ -64,7 +64,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed} theme="light">
-        <LogoWrapper onClick={() => navigate('/dashboard')}>
+        <LogoWrapper onClick={() => navigate('/add-test')}>
           {collapsed && (
             <LogoContainer>
               <img src="/logo.png" alt="logo" />

@@ -46,7 +46,7 @@ const routespath=[
 
     },
     {
-        path:"/dashboard",
+        path:"/add-test",
         component:<AddTest/>,
         restricted:true
 

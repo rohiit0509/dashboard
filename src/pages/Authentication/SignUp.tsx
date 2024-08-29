@@ -1,7 +1,7 @@
 import { Button, Col, Flex, Form, Input, Row, Typography } from 'antd';
 import SignupImage from '../../assets/svgs/SignupImage';
 import { FormContainer, FormWrapper, MainContainer } from '../../styles/signup';
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const SignUp = () => {
   const submitData = (values: any) => {
