@@ -294,7 +294,7 @@ function CourseView() {
           )}
         </Menu>
         {isEditing && (
-          <Button type="default" onClick={handleSave}>
+          <Button type="primary" onClick={handleSave}>
             Save
           </Button>
         )}

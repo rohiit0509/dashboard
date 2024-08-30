@@ -121,7 +121,7 @@ const SignIn: React.FC = () => {
               </Flex>
             </Form.Item>
             <Form.Item>
-              <Button block type="default" htmlType="submit" loading={loading}>
+              <Button block type="primary" htmlType="submit" loading={loading}>
                 Log in
               </Button>
             </Form.Item>

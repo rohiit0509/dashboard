@@ -4,10 +4,15 @@ import TrashIcon from '../../assets/svgs/TrashIcon';
 import { TrashIconWrapper } from '../../styles/logo';
 import TickIcon from '../../assets/svgs/TickIcon';
 import { FormRef } from 'rc-field-form/lib/interface';
+import AddNewFacultyMember from '../../Modals/AddNewFacultyMember';
+import { useState } from 'react';
 const { Title } = Typography;
 const { confirm } = Modal;
 
 const FacultyManagement = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const handleClose = () => setModalOpen(false);
+  const handleSave = (values: any) => {};
   const showDeleteConfirm = () => {
     confirm({
       title: 'You want to delete this account',
@@ -97,7 +102,6 @@ const FacultyManagement = () => {
         </Flex>
       ),
       okText: 'Confirm',
-      okButtonProps: { type: 'default' },
       cancelText: 'Cancel',
       onOk() {
         formInstance &&
@@ -206,13 +210,30 @@ const FacultyManagement = () => {
   ];
 
   return (
-    <Flex vertical gap={10}>
-      <Flex justify="space-between">
-        <Title level={4}>Faculty Management</Title>
-        <Button type="primary">Add New User</Button>
+    <>
+      <Flex vertical gap={10}>
+        <Flex justify="space-between">
+          <Title level={4}>Faculty Management</Title>
+          <Button type="primary" onClick={() => setModalOpen(true)}>
+            Add New User
+          </Button>
+        </Flex>
+        <Table columns={columns} dataSource={dataSource} />
       </Flex>
-      <Table columns={columns} dataSource={dataSource} />
-    </Flex>
+      <Modal
+        title="Enter Member Details"
+        open={modalOpen}
+        footer={null}
+        centered
+        destroyOnClose
+        onCancel={handleClose}
+      >
+        <AddNewFacultyMember
+          handleClose={handleClose}
+          handleSave={handleSave}
+        />
+      </Modal>
+    </>
   );
 };
 

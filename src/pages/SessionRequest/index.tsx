@@ -1,6 +1,11 @@
-import { Flex, Table, Typography } from 'antd';
+import { Button, Flex, Modal, Table, Typography } from 'antd';
+import { useState } from 'react';
+import CreateNewSessionRequest from '../../Modals/CreateNewSessionRequest';
 const { Title } = Typography;
 const SessionRequest = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const handleClose = () => setModalOpen(false);
+  const handleSave = (values: any) => {};
   const columns = [
     {
       title: 'Name',
@@ -71,15 +76,30 @@ const SessionRequest = () => {
       shareScheduleLink: 'http://example.com/schedule/bobbrown',
     },
   ];
-  
 
   return (
+  <>
     <Flex vertical>
-      <Flex justify="center">
+      <Flex justify="space-between">
         <Title level={4}>Request List</Title>
+        <Button type="primary" onClick={()=>setModalOpen(true)}>New Request</Button>
       </Flex>
       <Table columns={columns} dataSource={dataSource} />
     </Flex>
+    <Modal
+        title="Create New Session Request"
+        open={modalOpen}
+        footer={null}
+        centered
+        destroyOnClose
+        onCancel={handleClose}
+      >
+        <CreateNewSessionRequest
+          handleClose={handleClose}
+          handleSave={handleSave}
+        />
+      </Modal>
+  </>
   );
 };
 

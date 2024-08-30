@@ -116,7 +116,7 @@ const SignUp = () => {
               />
             </Form.Item>
             <Form.Item>
-              <Button type="default" htmlType="submit" block>
+              <Button type="primary" htmlType="submit" block>
                 Create Account
               </Button>
             </Form.Item>

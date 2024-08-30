@@ -52,7 +52,7 @@ function CourseModal({ handleSave, handleClose }) {
           <Button type="default" onClick={handleClose}>
             Close
           </Button>
-          <Button type="default" htmlType="submit">
+          <Button type="primary" htmlType="submit">
             Save Changes
           </Button>
         </Flex>

@@ -70,9 +70,9 @@ function ViewAllCourses() {
                     />
                   }
                   actions={[
-                    <Button block type="default" icon={<StepForwardOutlined />}>
+                    <Button block type="primary" icon={<StepForwardOutlined />}>
                       Start
-                    </Button>,
+                    </Button>
                   ]}
                 >
                   <Meta
