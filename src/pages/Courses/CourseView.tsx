@@ -208,11 +208,17 @@ function CourseView() {
   };
   return (
     <Layout style={{ minHeight: '97%' }}>
-      <Sider width={230}>
+      <Sider width={230} style={{ background: 'unset' }}>
         <Menu
           mode="inline"
           selectedKeys={[activeKey || '']}
-          style={{ height: '100%', borderRight: 0, overflow: 'auto' }}
+          style={{
+            height: '100%',
+            borderRight: 0,
+            overflow: 'auto',
+            padding: '10px',
+            borderRadius: '8px',
+          }}
         >
           <Flex justify="space-between" align="center">
             <Typography.Title level={5}>{course.courseName}</Typography.Title>
@@ -242,9 +248,9 @@ function CourseView() {
                     // onClick={() => handleTopicSelect(topicIndex)}
                   />
                 ) : (
-                  <span
-                    onClick={() => handleTopicSelect(topicIndex)}
-                  >{topic.name}</span>
+                  <span onClick={() => handleTopicSelect(topicIndex)}>
+                    {topic.name}
+                  </span>
                 )
               }
             >
@@ -293,14 +299,9 @@ function CourseView() {
             </Menu.Item>
           )}
         </Menu>
-        {isEditing && (
-          <Button type="primary" onClick={handleSave}>
-            Save
-          </Button>
-        )}
       </Sider>
       <Layout>
-        <Content style={{ padding: 15 }}>
+        <Content style={{ padding: 15, background: '#F1F5F9' }}>
           {isEditing ? (
             <TextEditorWrapper>
               <ReactQuill
@@ -323,6 +324,13 @@ function CourseView() {
             />
           )}
         </Content>
+        {isEditing && (
+          <Flex justify="end" style={{ background: '#F1F5F9' }}>
+            <Button type="primary" onClick={handleSave}>
+              Save
+            </Button>
+          </Flex>
+        )}
       </Layout>
     </Layout>
   );

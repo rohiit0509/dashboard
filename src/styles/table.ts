@@ -1,5 +1,8 @@
 import styled from 'styled-components'
 export const TableWrapper = styled.div`
+background-color: #fff;
+padding: 20px;
+border-radius: 12px;
   .ant-table-wrapper .ant-table-thead > tr > th {
     background-color: #f3f5ff;
   }

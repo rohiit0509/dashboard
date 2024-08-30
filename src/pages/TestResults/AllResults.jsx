@@ -4,6 +4,7 @@ import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { Space, Table } from 'antd';
 import { TableWrapper } from '../../styles/table';
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const AllResults = () => {
   const [testResults, setTestResults] = useState([]);
@@ -111,9 +112,9 @@ const AllResults = () => {
   ];
   return (
     <>
-      <h2 className="text-3xl font-bold mb-4 text-center">All Test Results</h2>
+      <Breadcrumb pageName="All Test Results" textSize="md" />
       <TableWrapper>
-        <Table columns={columns} dataSource={testResults}/>
+        <Table columns={columns} dataSource={testResults} />
       </TableWrapper>
     </>
   );

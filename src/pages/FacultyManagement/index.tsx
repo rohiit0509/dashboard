@@ -211,7 +211,7 @@ const FacultyManagement = () => {
 
   return (
     <>
-      <Flex vertical gap={5}>
+      <Flex vertical gap={5} style={{background:"#fff", padding:"20px", borderRadius:"12px"}}>
         <Flex justify="space-between">
           <Title level={4}>Faculty Management</Title>
           <Button type="primary" onClick={() => setModalOpen(true)}>
