@@ -11,6 +11,7 @@ import {
 } from 'firebase/storage';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Button } from 'antd';
 
 const AddTest = () => {
   const {
@@ -194,11 +195,14 @@ const AddTest = () => {
       userAnswer: '',
     }));
     setQuestions(clearedQuestions);
-    localStorage.setItem('testForm', JSON.stringify({
-      formData: getValues(),
-      questions: clearedQuestions,
-      numQuestions,
-    }));
+    localStorage.setItem(
+      'testForm',
+      JSON.stringify({
+        formData: getValues(),
+        questions: clearedQuestions,
+        numQuestions,
+      }),
+    );
   };
 
   const handleQuestionChange = (index, field, value) => {
@@ -295,7 +299,11 @@ const AddTest = () => {
                       type="text"
                       value={question.questionText}
                       onChange={(e) =>
-                        handleQuestionChange(index, 'questionText', e.target.value)
+                        handleQuestionChange(
+                          index,
+                          'questionText',
+                          e.target.value,
+                        )
                       }
                       placeholder="Enter Question"
                       className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
@@ -314,13 +322,18 @@ const AddTest = () => {
                     <input
                       type="file"
                       onChange={(e) =>
-                        handleQuestionChange(index, 'questionImage', e.target.files[0])
+                        handleQuestionChange(
+                          index,
+                          'questionImage',
+                          e.target.files[0],
+                        )
                       }
                       className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
-                    {question.questionImage && typeof question.questionImage !== 'string' && (
-                      <p>{question.questionImage.name}</p>
-                    )}
+                    {question.questionImage &&
+                      typeof question.questionImage !== 'string' && (
+                        <p>{question.questionImage.name}</p>
+                      )}
                   </div>
 
                   <div>
@@ -328,12 +341,19 @@ const AddTest = () => {
                       Options
                     </label>
                     {question.options.map((option, optionIndex) => (
-                      <div key={optionIndex} className="flex items-center gap-3 mb-3">
+                      <div
+                        key={optionIndex}
+                        className="flex items-center gap-3 mb-3"
+                      >
                         <input
                           type="text"
                           value={option}
                           onChange={(e) =>
-                            handleOptionChange(index, optionIndex, e.target.value)
+                            handleOptionChange(
+                              index,
+                              optionIndex,
+                              e.target.value,
+                            )
                           }
                           placeholder={`Option ${optionIndex + 1}`}
                           className="w-2/3 rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
@@ -342,18 +362,23 @@ const AddTest = () => {
                           type="file"
                           onChange={(e) => {
                             const updatedQuestions = [...questions];
-                            updatedQuestions[index].optionImages[optionIndex] = e.target.files[0];
+                            updatedQuestions[index].optionImages[optionIndex] =
+                              e.target.files[0];
                             setQuestions(updatedQuestions);
                           }}
                           className="w-1/3 rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         />
                         {question.optionImages[optionIndex] &&
-                          typeof question.optionImages[optionIndex] !== 'string' && (
+                          typeof question.optionImages[optionIndex] !==
+                            'string' && (
                             <p>{question.optionImages[optionIndex].name}</p>
                           )}
                         {errors?.questions?.[index]?.options?.[optionIndex] && (
                           <p className="text-danger">
-                            {errors.questions[index].options[optionIndex].message}
+                            {
+                              errors.questions[index].options[optionIndex]
+                                .message
+                            }
                           </p>
                         )}
                       </div>
@@ -389,21 +414,13 @@ const AddTest = () => {
                 </div>
               </div>
             ))}
-            <div className="mt-4">
-              <button
-                type="submit"
-                className="rounded-lg bg-primary py-3 px-6 text-white transition hover:bg-opacity-90 disabled:cursor-not-allowed"
-                disabled={isLoading}
-              >
+            <div className="mt-4 flex gap-5">
+              <Button type="primary" htmlType="submit" disabled={isLoading}>
                 {isLoading ? 'Saving...' : 'Save Test'}
-              </button>
-              <button
-                type="button"
-                onClick={handleClearQuestions}
-                className="ml-4 rounded-lg bg-secondary py-3 px-6 text-white transition hover:bg-opacity-90 disabled:cursor-not-allowed"
-              >
+              </Button>
+              <Button type="default" onClick={handleClearQuestions}>
                 Clear
-              </button>
+              </Button>
             </div>
           </div>
         </div>
