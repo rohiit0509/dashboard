@@ -10,14 +10,12 @@ import {
 } from 'firebase/firestore';
 import CourseModal from './CourseModal';
 import { Button, Card, Flex, Modal, Row, Spin, Typography } from 'antd';
-import {
-  DeleteOutlined,
-  ExclamationCircleFilled,
-  StepForwardOutlined,
-} from '@ant-design/icons';
+import { DeleteOutlined, StepForwardOutlined } from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
+import TrashIcon from '../../assets/svgs/TrashIcon';
 import { CardWrapper, OfferContainer } from '../../styles/table';
 const { Title, Text } = Typography;
+import { TrashIconWrapper } from '../../styles/logo';
 const { confirm } = Modal;
 
 function AllCourses() {
@@ -83,11 +81,18 @@ function AllCourses() {
   const showConfirm = (courseId) => {
     confirm({
       title: 'Are you sure you want to delete this course?',
-      icon: <ExclamationCircleFilled />,
+      icon: (
+        <>
+          <TrashIconWrapper>
+            <TrashIcon />
+          </TrashIconWrapper>
+        </>
+      ),
+      closable: true,
       content: 'This action cannot be reversed',
       okText: 'Yes',
       okType: 'danger',
-      okButtonProps: { type: 'default' },
+      okButtonProps: { type: 'primary' },
       onOk() {
         handleCourseDelete(courseId);
       },

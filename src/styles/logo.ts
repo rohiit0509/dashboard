@@ -9,3 +9,10 @@ export const LogoWrapper = styled.div`
 export const LogoContainer = styled.div`
   width: 40px;
 `;
+
+export const TrashIconWrapper = styled.div`
+  svg {
+    width: 60px;
+    height: 60px;
+  }
+`;

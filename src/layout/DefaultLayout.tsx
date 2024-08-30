@@ -15,7 +15,7 @@ import LogoImage from '../assets/svgs/LogoImage';
 const { Header, Sider, Content } = Layout;
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const isAdmin = false
+  const isAdmin = true
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(
     Boolean(localStorage.getItem('sidebar')),

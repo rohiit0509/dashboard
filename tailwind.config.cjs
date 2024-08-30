@@ -251,4 +251,7 @@ module.exports = {
     },
   },
   plugins: [],
+  corePlugins: {
+    appearance: false,
+  },
 }
