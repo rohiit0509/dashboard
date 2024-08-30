@@ -21,6 +21,8 @@ import NotFoundPage from '../components/NotFoundPage';
 import SignUp from '../pages/Authentication/SignUp';
 import SessionRequest from '../pages/SessionRequest';
 import FacultyManagement from '../pages/FacultyManagement';
+import LiveSession from '../pages/LiveSession';
+import UserDashboard from '../pages/UserDashboard';
 
 const routespath = [
   {
@@ -111,8 +113,18 @@ const routespath = [
     restricted: true,
   },
   {
-    path: '/settings',
-    component: <Buttons />,
+    path: '/user-settings',
+    component: <Settings />,
+    restricted: true,
+  },
+  {
+    path: '/live-session',
+    component: <LiveSession />,
+    restricted: true,
+  },
+  {
+    path: '/dashboard',
+    component: <UserDashboard />,
     restricted: true,
   },
   {

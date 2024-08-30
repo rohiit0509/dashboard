@@ -6,5 +6,5 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*.ts", "src/firebase.tsx", "src/layout/data.tsz"]
+  "include": ["src/**/*.ts", "src/firebase.tsx", "src/layout/data.tsz", "src/assets/svgs/TeacherTag.tsx"]
 }

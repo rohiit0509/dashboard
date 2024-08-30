@@ -15,7 +15,7 @@ import LogoImage from '../assets/svgs/LogoImage';
 const { Header, Sider, Content } = Layout;
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const isAdmin = true
+  const isAdmin = false
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(
     Boolean(localStorage.getItem('sidebar')),
@@ -111,11 +111,9 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         </Header>
         <Content
           style={{
-            margin: '24px 16px',
             padding: 24,
             minHeight: 280,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
+            background: '#F1F5F9',
           }}
         >
           {children}

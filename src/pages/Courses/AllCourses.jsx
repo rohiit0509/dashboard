@@ -102,12 +102,9 @@ function AllCourses() {
   return (
     <>
       <Spin spinning={loading} centered>
-        <button
-          onClick={handleShow}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-        >
+        <Button type="primary" onClick={handleShow}>
           Create Course
-        </button>
+        </Button>
 
         <div className="mt-8">
           <h2 className="text-[20px] font-semibold pb-5">On Going Courses</h2>

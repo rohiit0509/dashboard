@@ -79,7 +79,7 @@ const SessionRequest = () => {
 
   return (
   <>
-    <Flex vertical>
+    <Flex vertical gap={5}>
       <Flex justify="space-between">
         <Title level={4}>Request List</Title>
         <Button type="primary" onClick={()=>setModalOpen(true)}>New Request</Button>
