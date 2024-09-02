@@ -12,12 +12,14 @@ const LiveSession = () => {
           email="Designation"
           description="How to Focus on your future goals"
           buttonLabel="Scheduled On: 24th August |  8:00 PM"
+          tagName='Faculty'
         />
         <InfoCard
           name="Shishir Shekhar"
           email="Designation"
           description="How to Focus on your future goals"
           buttonLabel="Scheduled On: 24th August |  8:00 PM"
+          tagName='Faculty'
         />
       </Flex>
     </>

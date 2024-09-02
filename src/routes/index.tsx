@@ -23,6 +23,7 @@ import SessionRequest from '../pages/SessionRequest';
 import FacultyManagement from '../pages/FacultyManagement';
 import LiveSession from '../pages/LiveSession';
 import UserDashboard from '../pages/UserDashboard';
+import ScheduleWebinar from '../pages/ScheduleWebinar';
 
 const routespath = [
   {
@@ -130,6 +131,11 @@ const routespath = [
   {
     path: '/dashboard',
     component: <UserDashboard />,
+    restricted: true,
+  },
+  {
+    path: '/schedule-webinar',
+    component: <ScheduleWebinar />,
     restricted: true,
   },
   {
