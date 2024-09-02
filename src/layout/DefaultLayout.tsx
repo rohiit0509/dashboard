@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect } from 'react';
+import React, { ReactNode, useState, useEffect, useContext } from 'react';
 import {
   LogoutOutlined,
   MenuFoldOutlined,
@@ -11,11 +11,13 @@ import { app } from '../firebase';
 import { menuItems } from './data';
 import { LogoContainer, LogoWrapper } from '../styles/logo';
 import LogoImage from '../assets/svgs/LogoImage';
+import { AuthContext } from '../helper/auth';
 
 const { Header, Sider, Content } = Layout;
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const isAdmin = true
+  const { currentUser } = useContext(AuthContext);
+  const role = currentUser?.role;
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(
     Boolean(localStorage.getItem('sidebar')),
@@ -40,8 +42,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     setDefaultSelectedKey(getDefaultSelectedKey());
   }, [location]);
 
-  const filteredMenuItems = menuItems.filter((item) =>
-    isAdmin ? item.roles.includes('admin') : item.roles.includes('user'),
+  const filteredMenuItems = menuItems.filter((item) =>item.roles.includes(role as string),
   );
 
   const handleMenuClick = ({ key }: { key: string }) => {

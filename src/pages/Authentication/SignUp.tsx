@@ -1,12 +1,48 @@
 import { Button, Col, Flex, Form, Input, Row, Typography } from 'antd';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import SignupImage from '../../assets/svgs/SignupImage';
 import { FormContainer, FormWrapper, MainContainer } from '../../styles/signup';
+import { auth, db } from '../../firebase';
+import { useState } from 'react';
+import useNotification from '../../hooks/useNotifier';
 const { Title } = Typography;
 
 const SignUp = () => {
-  const submitData = (values: any) => {
-    console.log(values);
+  const [btnLoading, setBtnLoading] = useState(false)
+  const { openNotification } = useNotification()
+  const submitData = async (values: any) => {
+    setBtnLoading(true)
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+  
+      const user = userCredential.user;
+  
+      await setDoc(doc(db, "userDetails", user.uid), {
+        name: values.name,
+        occupation: values.occupation,
+        educationInstitute: values.educationInstitute,
+        class: values.class,
+        subject: values.subject,
+        email: values.email,
+        bio: values.bio || "",
+        role:'user',
+        createdAt: new Date(),
+      });
+      openNotification('success',"Account created successfully!",'')
+      setBtnLoading(false)
+    } catch (error) {
+      const err = error as Error;
+      openNotification('error',`${err.message}`,'')
+      setBtnLoading(false)
+    }
   };
+  
+
   return (
     <MainContainer justifyContent="center">
       <FormWrapper>
@@ -53,7 +89,7 @@ const SignUp = () => {
             </Form.Item>
             <Row gutter={5}>
               <Col sm={10}>
-              <Form.Item
+                <Form.Item
                   label="Education Institute"
                   name="educationInstitute"
                   rules={[
@@ -64,9 +100,7 @@ const SignUp = () => {
                     },
                   ]}
                 >
-                  <Input type="email" placeholder="Institute Name"
-                      
-                  />
+                  <Input placeholder="Institute Name" />
                 </Form.Item>
               </Col>
               <Col sm={7}>
@@ -87,7 +121,7 @@ const SignUp = () => {
               <Col sm={7}>
                 <Form.Item
                   label="Subject"
-                  name="college"
+                  name="subject"
                 >
                   <Input placeholder="Math-Science" />
                 </Form.Item>
@@ -106,17 +140,30 @@ const SignUp = () => {
             >
               <Input type="email" placeholder="example@gmail.com" />
             </Form.Item>
-            <Form.Item label="Link" name="link">
-              <Input placeholder="Student" />
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter a Password',
+                },
+                {
+                  min: 6,
+                  message: 'Minimum 6 Characters are required',
+                },
+              ]}
+            >
+              <Input.Password placeholder="Enter Password" />
             </Form.Item>
-            <Form.Item label="About Yourself (Optional)" name="description">
+            <Form.Item label="About Yourself (Optional)" name="bio">
               <Input.TextArea
                 rows={4}
                 placeholder="e.g. I joined Stripe’s Customer Success team to help them scale their checkout product. I focused mainly on onboarding new customers and resolving complaints."
               />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit" block>
+              <Button type="primary" htmlType="submit" block loading={btnLoading}>
                 Create Account
               </Button>
             </Form.Item>

@@ -1,39 +1,61 @@
-import React, { useEffect, useState, ReactNode } from "react";
-import { app } from '../firebase';
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
-import Loader from "../common/Loader";
+import React, { useEffect, useState, ReactNode } from 'react';
+import { auth, db } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import Loader from '../common/Loader';
 
-export const AuthContext = React.createContext({
- currentUser: null as User | null,
+export const AuthContext = React.createContext<{
+  currentUser: UserDetails | null;
+}>({
+  currentUser: null,
 });
 
 interface AuthProviderProps {
- children: ReactNode;
+  children: ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
- const [currentUser, setCurrentUser] = useState<User | null>(null);
- const [pending, setPending] = useState(true);
- const auth = getAuth(app);
+  const [currentUser, setCurrentUser] = useState<UserDetails | null>(null);
+  const [pending, setPending] = useState(true);
 
- useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userId = user.uid;
+        try {
+          const userDoc = await getDoc(doc(db, 'userDetails', userId));
+          if (userDoc.exists()) {
+            const userData = userDoc.data() as UserDetails;
+            setCurrentUser({
+              ...userData,
+              uid: userId,
+            });
+          } else {
+            console.error('No such user document!');
+          }
+        } catch (error) {
+          console.error('Error fetching user details:', error);
+        }
+      } else {
+        setCurrentUser(null);
+      }
       setPending(false);
     });
- }, []);
 
- if (pending) {
+    return () => unsubscribe();
+  }, []);
+
+  if (pending) {
     return <Loader />;
- }
+  }
 
- return (
+  return (
     <AuthContext.Provider
       value={{
-        currentUser
+        currentUser,
       }}
     >
       {children}
     </AuthContext.Provider>
- );
+  );
 };

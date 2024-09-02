@@ -14,6 +14,7 @@ import { Button, Divider, Flex, Form, Input, Typography } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import GoogleIcon from '../../assets/svgs/GoogleIcon';
 import TwitterIcon from '../../assets/svgs/TwitterIcon';
+import useNotification from '../../hooks/useNotifier';
 const { Title, Text } = Typography;
 const SignIn: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -22,6 +23,7 @@ const SignIn: React.FC = () => {
   const adminLogin = location.pathname === '/admin-login';
   const auth = getAuth(app);
   const { currentUser } = useContext(AuthContext);
+  const {openNotification} = useNotification();
   interface UserData {
     email?: string;
     role?: string;
@@ -40,7 +42,7 @@ const SignIn: React.FC = () => {
 
       const user = userCredential.user;
 
-      const userDoc = doc(db, 'users', user.uid);
+      const userDoc = doc(db, 'userDetails', user.uid);
       const userDocSnapshot = await getDoc(userDoc);
 
       if (!userDocSnapshot.exists()) {
@@ -50,10 +52,13 @@ const SignIn: React.FC = () => {
         };
         await setDoc(userDoc, userData);
       }
+      openNotification('success', 'You are logged in successfully','')
       setLoading(false);
       navigate('/add-test');
     } catch (error) {
       setLoading(false);
+      const err = error as Error;
+      openNotification('error', `${err.message}`,'')
       console.error('Error signing in:', error);
     }
   };

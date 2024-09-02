@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { db } from '../../firebase';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { Space, Table } from 'antd';
 import { TableWrapper } from '../../styles/table';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-
+import {AuthContext} from '../../helper/auth'
 const AllResults = () => {
   const [testResults, setTestResults] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const userId = 'USER_ID'; // Replace with actual user ID
+  const { currentUser } = useContext(AuthContext);
+console.log("asdfasdfds", currentUser)
 
   useEffect(() => {
     const fetchAllResults = async () => {

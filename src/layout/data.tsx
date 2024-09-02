@@ -5,6 +5,7 @@ import {
   FileProtectOutlined,
   PullRequestOutlined,
   ScheduleOutlined,
+  SettingOutlined,
   ShoppingCartOutlined,
   UsergroupAddOutlined,
 } from '@ant-design/icons';
@@ -83,7 +84,7 @@ export const menuItems = [
   },
   {
     key: '11',
-    icon: <FileProtectOutlined />,
+    icon: <SettingOutlined/>,
     label: 'Settings',
     route: '/user-settings',
     roles: ['user'],

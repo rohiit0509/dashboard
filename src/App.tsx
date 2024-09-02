@@ -1,8 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-
 import DefaultLayout from './layout/DefaultLayout';
-import { AuthContext, AuthProvider } from './helper/auth';
+import { AuthProvider } from './helper/auth';
 import routespath from './routes';
 import ProtectedRoutes from './routes/private';
 import PublicRoutes from './routes/public';
@@ -10,9 +9,7 @@ import PublicRoutes from './routes/public';
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
-  const { currentUser } = useContext(AuthContext);
 
-console.log("asdfasd", currentUser)
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
