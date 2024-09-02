@@ -22,6 +22,7 @@ function CourseView() {
   const { currentUser } = useContext(AuthContext);
   const { courseId } = useParams();
   const [course, setCourse] = useState<Course | null>(null);
+  console.log('adsffsafas', course);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedContent, setSelectedContent] = useState<string>('');
   const [selectedIndexes, setSelectedIndexes] = useState<SelectedIndexes>({
@@ -36,7 +37,7 @@ function CourseView() {
   useEffect(() => {
     setIsAdmin(currentUser?.role == 'admin');
   }, [currentUser]);
-  
+
   useEffect(() => {
     const fetchCourse = async () => {
       if (!courseId) {
@@ -292,8 +293,15 @@ function CourseView() {
               />
             </TextEditorWrapper>
           ) : selectedContent == '' ? (
-            <Flex justify="center" align="center">
-              <Typography.Title>Course Details</Typography.Title>
+            <Flex
+              justify="center"
+              align="center"
+              vertical
+              style={{ height: '100%' }}
+            >
+              <Typography.Title level={2}>{course.courseName}</Typography.Title>
+              <Typography.Text>{course.subHeading}</Typography.Text>
+              <Typography.Text type="secondary">{course.price}</Typography.Text>
             </Flex>
           ) : (
             <div

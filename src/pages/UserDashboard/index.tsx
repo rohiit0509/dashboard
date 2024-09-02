@@ -7,7 +7,7 @@ const UserDashboard = () => {
     <Flex vertical gap={50}>
       <div>
         <Breadcrumb pageName="Dashboard" textSize="md" />
-        <InfoCard name="Rohit Mandal" email="Rohit@gmail.com" buttonLabel='Verified'/>
+        <InfoCard name="Rohit Mandal" email="Rohit@gmail.com" buttonLabel='Verified' tagName='Student'/>
       </div>
       {/* <Breadcrumb pageName="On Going Courses" textSize="sm" />
       <Breadcrumb pageName="Scheduled Sessions" textSize="sm" /> */}

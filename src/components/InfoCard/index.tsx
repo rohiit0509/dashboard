@@ -14,8 +14,9 @@ interface InfoCardProps {
   email: string;
   description?: string;
   buttonLabel: string;
+  tagName:string
 }
-const InfoCard = ({ name, email, description, buttonLabel }: InfoCardProps) => {
+const InfoCard = ({ name, email, description, buttonLabel, tagName}: InfoCardProps) => {
   return (
     <InfoCardContainer>
       <Flex>
@@ -28,7 +29,7 @@ const InfoCard = ({ name, email, description, buttonLabel }: InfoCardProps) => {
         </Flex>
         <TagContainer>
           <TeacherTag />
-          <TagName>Teacher</TagName>
+          <TagName>{tagName}</TagName>
         </TagContainer>
       </Flex>
       {description && <Text>Interaction On: {description}</Text>}
