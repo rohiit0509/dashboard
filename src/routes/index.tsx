@@ -95,6 +95,11 @@ const routespath = [
     component: <ListTests />,
     restricted: true,
   },
+  {
+    path: '/tests',
+    component: <ListTests />,
+    restricted: true,
+  },
 
   {
     path: '/take-test/:testId',

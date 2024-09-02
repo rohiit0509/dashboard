@@ -9,5 +9,7 @@ interface UserDetails {
     description?: string;
     createdAt: Date;
     role:string
+    userId:string;
+    password:string
   }
   

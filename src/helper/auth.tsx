@@ -28,7 +28,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const userData = userDoc.data() as UserDetails;
             setCurrentUser({
               ...userData,
-              uid: userId,
             });
           } else {
             console.error('No such user document!');

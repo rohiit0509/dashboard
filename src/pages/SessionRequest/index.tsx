@@ -86,13 +86,10 @@ const SessionRequest = () => {
       >
         <Flex justify="space-between">
           <Title level={4}>Request List</Title>
-          <Button type="primary" onClick={() => setModalOpen(true)}>
-            New Request
-          </Button>
         </Flex>
         <Table columns={columns} dataSource={dataSource} />
       </Flex>
-      <Modal
+      {/* <Modal
         title="Create New Session Request"
         open={modalOpen}
         footer={null}
@@ -104,7 +101,7 @@ const SessionRequest = () => {
           handleClose={handleClose}
           handleSave={handleSave}
         />
-      </Modal>
+      </Modal> */}
     </>
   );
 };

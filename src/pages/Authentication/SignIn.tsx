@@ -1,9 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { app, db } from '../../firebase';
+import { app } from '../../firebase';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { AuthContext } from '../../helper/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {
   FormContainer,
   FormWrapper,
@@ -23,11 +22,8 @@ const SignIn: React.FC = () => {
   const adminLogin = location.pathname === '/admin-login';
   const auth = getAuth(app);
   const { currentUser } = useContext(AuthContext);
-  const {openNotification} = useNotification();
-  interface UserData {
-    email?: string;
-    role?: string;
-  }
+  const { openNotification } = useNotification();
+
   const onFinish = async (values: { email: string; password: string }) => {
     const { email, password } = values;
     setLoading(true);
@@ -41,30 +37,23 @@ const SignIn: React.FC = () => {
       );
 
       const user = userCredential.user;
-
-      const userDoc = doc(db, 'userDetails', user.uid);
-      const userDocSnapshot = await getDoc(userDoc);
-
-      if (!userDocSnapshot.exists()) {
-        const userData: UserData = {
-          email: user?.email as string,
-          role: 'user',
-        };
-        await setDoc(userDoc, userData);
+      if (user) {
+        openNotification('success', 'You are logged in successfully', '');
       }
-      openNotification('success', 'You are logged in successfully','')
       setLoading(false);
-      navigate('/add-test');
     } catch (error) {
       setLoading(false);
       const err = error as Error;
-      openNotification('error', `${err.message}`,'')
+      openNotification('error', `${err.message}`, '');
       console.error('Error signing in:', error);
     }
   };
 
   if (currentUser) {
-    return <Navigate to="/add-test" />;
+    if (currentUser.role == 'admin') {
+      return <Navigate to="/add-test" />;
+    }
+    return <Navigate to="/dashboard" />;
   }
   return (
     <MainContainer justifyContent="center">

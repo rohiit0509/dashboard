@@ -22,7 +22,7 @@ const Settings = () => {
     const fetchUserDetails = async () => {
       if (currentUser) {
         try {
-          const userDoc = await getDoc(doc(db, 'userDetails', currentUser.uid));
+          const userDoc = await getDoc(doc(db, 'userDetails', currentUser.userId));
           if (userDoc.exists()) {
             const userData = userDoc.data();
             form.setFieldsValue({
@@ -45,7 +45,7 @@ const Settings = () => {
     if (currentUser) {
       setBtnLoading(true);
       try {
-        const userRef = doc(db, 'userDetails', currentUser.uid);
+        const userRef = doc(db, 'userDetails', currentUser.userId);
         await updateDoc(userRef, {
           name: values.name,
           bio: values.bio,
@@ -84,7 +84,7 @@ const Settings = () => {
     if (currentUser) {
       setDeleteBtnLoading(true);
       try {
-        const userRef = doc(db, 'userDetails', currentUser.uid);
+        const userRef = doc(db, 'userDetails', currentUser.userId);
         await deleteDoc(userRef);
         await deleteUser(auth.currentUser!);
         setDeleteBtnLoading(false);

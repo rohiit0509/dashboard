@@ -22,7 +22,6 @@ function CourseView() {
   const { currentUser } = useContext(AuthContext);
   const { courseId } = useParams();
   const [course, setCourse] = useState<Course | null>(null);
-  console.log('asdfsa324', course?.topics);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedContent, setSelectedContent] = useState<string>('');
   const [selectedIndexes, setSelectedIndexes] = useState<SelectedIndexes>({
@@ -34,7 +33,10 @@ function CourseView() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const quillRef = useRef<ReactQuill>(null);
-
+  useEffect(() => {
+    setIsAdmin(currentUser?.role == 'admin');
+  }, [currentUser]);
+  
   useEffect(() => {
     const fetchCourse = async () => {
       if (!courseId) {
@@ -56,29 +58,6 @@ function CourseView() {
 
     fetchCourse();
   }, [courseId]);
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (currentUser?.uid) {
-        try {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userDoc = await getDoc(userDocRef);
-
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setIsAdmin(userData.role == 'admin');
-          } else {
-            console.log('No such user document!');
-            return null;
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          return null;
-        }
-      }
-    };
-    fetchUserData();
-  }, []);
 
   const handleTopicChange = (
     index: number,

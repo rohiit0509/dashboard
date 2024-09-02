@@ -32,6 +32,8 @@ const SignUp = () => {
         bio: values.bio || "",
         role:'user',
         createdAt: new Date(),
+        userId:user.uid,
+        password:values.password
       });
       openNotification('success',"Account created successfully!",'')
       setBtnLoading(false)

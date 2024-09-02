@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import {
@@ -7,6 +7,8 @@ import {
   addDoc,
   doc,
   deleteDoc,
+  query,
+  where,
 } from 'firebase/firestore';
 import CourseModal from './CourseModal';
 import { Button, Card, Flex, Modal, Row, Spin, Typography } from 'antd';
@@ -16,6 +18,7 @@ import TrashIcon from '../../assets/svgs/TrashIcon';
 import { CardWrapper, OfferContainer } from '../../styles/table';
 const { Title, Text } = Typography;
 import { TrashIconWrapper } from '../../styles/logo';
+import { AuthContext } from '../../helper/auth';
 const { confirm } = Modal;
 
 function AllCourses() {
@@ -25,16 +28,30 @@ function AllCourses() {
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
   const [loading, setLoading] = useState(false);
-
+  const { currentUser } = useContext(AuthContext);
+  console.log('asdfasdfds', courses);
   const fetchCourses = async () => {
     try {
-      setLoading(true);
-      const querySnapshot = await getDocs(collection(db, 'Courses'));
-      const coursesList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCourses(coursesList);
+      if(currentUser.role=='admin'){
+        const coursesQuery = query(
+          collection(db, 'Courses'),
+          where('authorId', '==', currentUser.userId)
+        );
+        const querySnapshot = await getDocs(coursesQuery);
+        const userCourses = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCourses(userCourses);
+      }
+      else if(currentUser.role!=='user'){
+        const querySnapshot = await getDocs(collection(db, 'Courses'));
+        const coursesList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCourses(coursesList);
+      }
     } catch (error) {
       console.error('Error fetching courses:', error);
     } finally {
@@ -49,9 +66,9 @@ function AllCourses() {
         subHeading: data.subHeading,
         price: data.price,
         createdAt: new Date(),
+        authorId: currentUser?.userId,
       });
       handleClose();
-      console.log('Document written with ID: ', docRef.id);
       navigate(`/view-courses/${docRef.id}`);
       fetchCourses();
     } catch (e) {
@@ -109,7 +126,7 @@ function AllCourses() {
         <div className="mt-8">
           <h2 className="text-[20px] font-semibold pb-5">On Going Courses</h2>
           <Flex wrap gap={20}>
-            {courses.map((course) => (
+            {courses.length!==0 ? courses.map((course) => (
               <CardWrapper>
                 <Card
                   hoverable
@@ -158,7 +175,9 @@ function AllCourses() {
                   </Row>
                 </Card>
               </CardWrapper>
-            ))}
+            )):<>
+            <Typography.Text>No course available right now</Typography.Text>
+            </>}
           </Flex>
         </div>
       </Spin>

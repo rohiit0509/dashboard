@@ -5,15 +5,68 @@ import { TrashIconWrapper } from '../../styles/logo';
 import TickIcon from '../../assets/svgs/TickIcon';
 import { FormRef } from 'rc-field-form/lib/interface';
 import AddNewFacultyMember from '../../Modals/AddNewFacultyMember';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+} from 'firebase/firestore';
+import { auth, db } from '../../firebase';
+import useNotification from '../../hooks/useNotifier';
+import { deleteUser } from 'firebase/auth';
 const { Title } = Typography;
 const { confirm } = Modal;
 
 const FacultyManagement = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const handleClose = () => setModalOpen(false);
-  const handleSave = (values: any) => {};
-  const showDeleteConfirm = () => {
+  const { openNotification } = useNotification();
+  const [admins, setAdmins] = useState<any>([]);
+const [tableDataLoader,setTableDataLoader] = useState(false)
+
+  const fetchAdmins = async () => {
+    try {
+      setTableDataLoader(true)
+      const q = query(
+        collection(db, 'userDetails'),
+        where('role', '==', 'admin'),
+      );
+      const querySnapshot = await getDocs(q);
+      const adminData = querySnapshot.docs.map((doc) => doc.data());
+      setAdmins(adminData);
+      setTableDataLoader(false)
+    } catch (error) {
+      setTableDataLoader(false)
+      console.error('Error fetching admin users:', error);
+      openNotification('error', 'Failed to fetch admin users.', '');
+    }
+  };
+
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+  const handleDeleteAccount = async (userId: string) => {
+    try {
+      const user = auth.currentUser;
+      if (user && user.uid === userId) {
+        await deleteUser(user);
+      }
+
+      const userDocRef = doc(db, 'userDetails', userId);
+      await deleteDoc(userDocRef);
+      openNotification('success', 'User deleted successfully.', '');
+      await fetchAdmins();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      openNotification('error', 'Failed to delete user.', '');
+    }
+  };
+
+  const showDeleteConfirm = (userId: string) => {
     confirm({
       title: 'You want to delete this account',
       icon: (
@@ -32,10 +85,7 @@ const FacultyManagement = () => {
       okButtonProps: { type: 'primary' },
       cancelText: 'Cancel',
       onOk() {
-        console.log('OK');
-      },
-      onCancel() {
-        console.log('Cancel');
+        handleDeleteAccount(userId);
       },
     });
   };
@@ -156,69 +206,31 @@ const FacultyManagement = () => {
     },
     {
       title: 'Action',
-      dataIndex: 'action',
+      dataIndex: 'userId',
       key: 'action',
       align: 'center' as const,
       render: (value: string) => (
-        <Button type="link" danger onClick={showDeleteConfirm}>
+        <Button type="link" danger onClick={() => showDeleteConfirm(value)}>
           Delete Account
         </Button>
       ),
     },
   ];
-  const dataSource = [
-    {
-      key: '1',
-      name: 'John Doe',
-      designation: 'Manager',
-      email: 'john.doe@example.com',
-      contact: '123-456-7890',
-      password: '******',
-      access: 'Edit Access',
-      action: 'Delete Account',
-    },
-    {
-      key: '2',
-      name: 'Jane Smith',
-      designation: 'Team Lead',
-      email: 'jane.smith@example.com',
-      contact: '987-654-3210',
-      password: '******',
-      access: 'Edit Access',
-      action: 'Delete Account',
-    },
-    {
-      key: '3',
-      name: 'Alice Johnson',
-      designation: 'Developer',
-      email: 'alice.johnson@example.com',
-      contact: '456-789-0123',
-      password: '******',
-      access: 'Edit Access',
-      action: 'Delete Account',
-    },
-    {
-      key: '4',
-      name: 'Bob Brown',
-      designation: 'Intern',
-      email: 'bob.brown@example.com',
-      contact: '789-012-3456',
-      password: '******',
-      access: 'Edit Access',
-      action: 'Delete Account',
-    },
-  ];
 
   return (
     <>
-      <Flex vertical gap={5} style={{background:"#fff", padding:"20px", borderRadius:"12px"}}>
+      <Flex
+        vertical
+        gap={5}
+        style={{ background: '#fff', padding: '20px', borderRadius: '12px' }}
+      >
         <Flex justify="space-between">
           <Title level={4}>Faculty Management</Title>
           <Button type="primary" onClick={() => setModalOpen(true)}>
             Add New User
           </Button>
         </Flex>
-        <Table columns={columns} dataSource={dataSource} />
+        <Table columns={columns} dataSource={admins} loading={tableDataLoader}/>
       </Flex>
       <Modal
         title="Enter Member Details"
@@ -228,10 +240,7 @@ const FacultyManagement = () => {
         destroyOnClose
         onCancel={handleClose}
       >
-        <AddNewFacultyMember
-          handleClose={handleClose}
-          handleSave={handleSave}
-        />
+        <AddNewFacultyMember handleClose={handleClose} />
       </Modal>
     </>
   );
