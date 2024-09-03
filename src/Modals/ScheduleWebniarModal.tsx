@@ -1,17 +1,60 @@
-import { Button, DatePicker, Flex, Form, Input, TimePicker } from 'antd';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Flex,
+  Form,
+  Input,
+  Row,
+  TimePicker,
+} from 'antd';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '../firebase';
+import { AuthContext } from '../helper/auth';
+import { useContext, useState } from 'react';
 dayjs.extend(utc);
 
 const ScheduleWebniarModal = ({ handleClose }: { handleClose: () => void }) => {
-  const onFinish = (values: any) => {
-    const { date, time } = values;
-    const formattedDate = dayjs(date).format('DD MMM');
-    const start = dayjs.utc(time[0]).local().format('h:mma'); // Convert to local time and format
-    const end = dayjs.utc(time[1]).local().format('h:mma'); // Convert UTC to local time and format
-    const formattedTime = `${start}-${end}`;
+  const { currentUser } = useContext(AuthContext);
+  const [btnLoading, setBtnLoading] = useState(false);
 
-    console.log('Asdfasdfds', formattedTime);
+  interface IFormProps {
+    title: string;
+    meetLink: string;
+    time: string;
+    date: string;
+    description: string;
+    authorId: string;
+  }
+  const onFinish = async (values: IFormProps) => {
+    setBtnLoading(true);
+    const { title, meetLink, time, date, description } = values;
+    const [startTime, endTime] = time;
+
+    const formattedDate = dayjs(date).format('DD MMM');
+
+    const start = dayjs.utc(startTime).local().format('h:mmA');
+    const end = dayjs.utc(endTime).local().format('h:mmA');
+
+    const webinarData = {
+      title: title,
+      meetLink: meetLink,
+      startTime: start,
+      endTime: end,
+      date: formattedDate,
+      description: description,
+      authorId: currentUser?.userId,
+    };
+    try {
+      await addDoc(collection(db, 'scheduleWebinars'), webinarData);
+    } catch (error) {
+      console.error('Error scheduling webinar:', error);
+    } finally {
+      setBtnLoading(false);
+      handleClose();
+    }
   };
   return (
     <Form
@@ -34,20 +77,26 @@ const ScheduleWebniarModal = ({ handleClose }: { handleClose: () => void }) => {
       >
         <Input placeholder="www.example.com" />
       </Form.Item>
-      <Form.Item
-        label="Time Onwards"
-        name="time"
-        rules={[{ required: true, message: 'Please select time duration' }]}
-      >
-        <TimePicker.RangePicker format={'hh:mm a'} />
-      </Form.Item>
-      <Form.Item
-        label="Date"
-        name="date"
-        rules={[{ required: true, message: 'Please select Date' }]}
-      >
-        <DatePicker />
-      </Form.Item>
+      <Row gutter={10}>
+        <Col>
+          <Form.Item
+            label="Time Onwards"
+            name="time"
+            rules={[{ required: true, message: 'Please select time duration' }]}
+          >
+            <TimePicker.RangePicker format={'hh:mm A'} />
+          </Form.Item>
+        </Col>
+        <Col>
+          <Form.Item
+            label="Date"
+            name="date"
+            rules={[{ required: true, message: 'Please select Date' }]}
+          >
+            <DatePicker format={'DD-MM-YYYY'} />
+          </Form.Item>
+        </Col>
+      </Row>
       <Form.Item
         label="Description"
         name="description"
@@ -63,7 +112,7 @@ const ScheduleWebniarModal = ({ handleClose }: { handleClose: () => void }) => {
           <Button type="default" onClick={handleClose} block>
             Cancel
           </Button>
-          <Button type="primary" htmlType="submit" block>
+          <Button type="primary" htmlType="submit" block loading={btnLoading}>
             Confirm
           </Button>
         </Flex>

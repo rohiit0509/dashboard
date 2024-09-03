@@ -7,6 +7,7 @@ import {
 import SmallTickIcon from '../../assets/svgs/SmallTickIcon';
 import TeacherTag from '../../assets/svgs/TeacherTag';
 import { UserOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 const { Title, Text } = Typography;
 
 interface InfoCardProps {
@@ -14,9 +15,17 @@ interface InfoCardProps {
   email: string;
   description?: string;
   buttonLabel: string;
-  tagName:string
+  tagName: string;
+  buttonAction?: string;
 }
-const InfoCard = ({ name, email, description, buttonLabel, tagName}: InfoCardProps) => {
+const InfoCard = ({
+  name,
+  email,
+  description,
+  buttonLabel,
+  tagName,
+  buttonAction,
+}: InfoCardProps) => {
   return (
     <InfoCardContainer>
       <Flex>
@@ -34,7 +43,13 @@ const InfoCard = ({ name, email, description, buttonLabel, tagName}: InfoCardPro
       </Flex>
       {description && <Text>Interaction On: {description}</Text>}
       <Button type="default" icon={<SmallTickIcon />}>
-        {buttonLabel}
+        {buttonAction ? (
+          <Link to={buttonAction} target="_blank">
+            {buttonLabel}
+          </Link>
+        ) : (
+          buttonLabel
+        )}
       </Button>
     </InfoCardContainer>
   );

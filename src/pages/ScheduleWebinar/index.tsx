@@ -1,10 +1,18 @@
 import { Button, Flex, Modal, Table, Typography } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ScheduleWebniarModal from '../../Modals/ScheduleWebniarModal';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+import useNotification from '../../hooks/useNotifier';
+import { Link } from 'react-router-dom';
 const { Title } = Typography;
 const ScheduleWebinar = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const handleClose = () => setModalOpen(false);
+  const { openNotification } = useNotification();
+  const [webinars, setWebinars] = useState<any[]>([]); // State to store webinar data
+  const [loading, setLoading] = useState(false); // State to manage loading status
+
   const columns = [
     {
       title: 'Title',
@@ -25,8 +33,38 @@ const ScheduleWebinar = () => {
       title: ' Share Schedule Link',
       dataIndex: 'sheduleLink',
       key: 'sheduleLink',
+      render: (value: string) => (
+        <Link to={value} target="_blank">
+          {value}
+        </Link>
+      ),
     },
   ];
+
+  const fetchWebinars = async () => {
+    setLoading(true);
+    try {
+      const querySnapshot = await getDocs(collection(db, 'scheduleWebinars'));
+      const webinarData = querySnapshot.docs.map((doc) => ({
+        key: doc.id,
+        title: doc.data().title,
+        timeAndDate: `${doc.data().startTime} - ${doc.data().endTime} | ${
+          doc.data().date
+        }`,
+        description: doc.data().description,
+        sheduleLink: doc.data().meetLink,
+      }));
+      setWebinars(webinarData);
+    } catch (error) {
+      openNotification('error', 'Failed to fetch webinars', '');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    !modalOpen && fetchWebinars();
+  }, [modalOpen]);
   return (
     <>
       <Flex
@@ -37,10 +75,10 @@ const ScheduleWebinar = () => {
         <Flex justify="space-between">
           <Title level={4}>Scheduled Webinar</Title>
           <Button type="primary" onClick={() => setModalOpen(true)}>
-           Schedule
+            Schedule
           </Button>
         </Flex>
-        <Table columns={columns} dataSource={[]} />
+        <Table columns={columns} dataSource={webinars} loading={loading} />
       </Flex>
       <Modal
         title="Schedule Webinar"
@@ -50,7 +88,7 @@ const ScheduleWebinar = () => {
         destroyOnClose
         onCancel={handleClose}
       >
-        <ScheduleWebniarModal handleClose={handleClose}/>
+        <ScheduleWebniarModal handleClose={handleClose} />
       </Modal>
     </>
   );

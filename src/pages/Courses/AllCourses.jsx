@@ -34,19 +34,7 @@ function AllCourses() {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      if (currentUser.role === 'user') {
-        // Fetch courses purchased by the user
-        const coursesQuery = query(
-          collection(db, 'Courses'),
-          where('consumerId', 'array-contains', currentUser.userId),
-        );
-        const querySnapshot = await getDocs(coursesQuery);
-        const userCourses = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCourses(userCourses);
-      } else if (currentUser.role === 'admin') {
+      if (currentUser.role === 'admin') {
         // Fetch courses created by the admin
         const coursesQuery = query(
           collection(db, 'Courses'),
@@ -59,7 +47,6 @@ function AllCourses() {
         }));
         setCourses(adminCourses);
       } else {
-        // Fetch all courses for other roles (e.g., guests)
         const querySnapshot = await getDocs(collection(db, 'Courses'));
         const allCourses = querySnapshot.docs.map((doc) => ({
           id: doc.id,
