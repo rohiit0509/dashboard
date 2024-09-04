@@ -30,3 +30,12 @@ export const TagName = styled.div`
   font-size: 10px;
   font-weight: 700;
 `;
+export const ButtonWrapper = styled.div<{ hover: boolean }>`
+  ${({ hover }) =>
+    hover &&
+    `  .ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
+    background-color: #c4ed2f;
+    color: #000;
+    border: 1px solid #ededed;
+  }`}
+`;

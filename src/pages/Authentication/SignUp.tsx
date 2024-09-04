@@ -1,4 +1,4 @@
-import { Button, Col, Flex, Form, Input, Row, Typography } from 'antd';
+import { Button, Col, Flex, Form, Input, Row, Select, Typography } from 'antd';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import SignupImage from '../../assets/svgs/SignupImage';
@@ -6,45 +6,56 @@ import { FormContainer, FormWrapper, MainContainer } from '../../styles/signup';
 import { auth, db } from '../../firebase';
 import { useState } from 'react';
 import useNotification from '../../hooks/useNotifier';
+import { SearchOutlined } from '@ant-design/icons';
 const { Title } = Typography;
 
 const SignUp = () => {
-  const [btnLoading, setBtnLoading] = useState(false)
-  const { openNotification } = useNotification()
+  const [btnLoading, setBtnLoading] = useState(false);
+  const [occupation, setOccupation] = useState('');
+  const { openNotification } = useNotification();
   const submitData = async (values: any) => {
-    setBtnLoading(true)
+    setBtnLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         values.email,
-        values.password
+        values.password,
       );
-  
+
       const user = userCredential.user;
-  
-      await setDoc(doc(db, "userDetails", user.uid), {
+
+      await setDoc(doc(db, 'userDetails', user.uid), {
         name: values.name,
         occupation: values.occupation,
         educationInstitute: values.educationInstitute,
         class: values.class,
         subject: values.subject,
         email: values.email,
-        bio: values.bio || "",
-        role:'user',
+        bio: values.bio || '',
+        role: 'user',
         createdAt: new Date(),
-        userId:user.uid,
-        password:values.password
+        userId: user.uid,
+        password: values.password,
       });
-      openNotification('success',"Account created successfully!",'')
-      setBtnLoading(false)
+      openNotification('success', 'Account created successfully!', '');
+      setBtnLoading(false);
     } catch (error) {
       const err = error as Error;
-      openNotification('error',`${err.message}`,'')
-      setBtnLoading(false)
+      openNotification('error', `${err.message}`, '');
+      setBtnLoading(false);
     }
   };
-  
 
+  const occupationList = [
+    {
+      label: 'Teacher',
+      value: 'teacher',
+    },
+    {
+      label: 'Student',
+      value: 'student',
+    },
+  ];
   return (
     <MainContainer justifyContent="center">
       <FormWrapper>
@@ -82,12 +93,15 @@ const SignUp = () => {
               rules={[
                 {
                   required: true,
-                  message: 'Please enter your Occupation',
-                  whitespace: true,
+                  message: 'Please select your Occupation',
                 },
               ]}
             >
-              <Input placeholder="Student" />
+              <Select
+                placeholder="Select Occupation"
+                options={occupationList}
+                onChange={(value) => setOccupation(value)}
+              />
             </Form.Item>
             <Row gutter={5}>
               <Col sm={10}>
@@ -102,29 +116,31 @@ const SignUp = () => {
                     },
                   ]}
                 >
-                  <Input placeholder="Institute Name" />
+                  <Input
+                    placeholder="Institute Name"
+                    prefix={<SearchOutlined />}
+                  />
                 </Form.Item>
               </Col>
+              {occupation == 'student' && (
+                <Col sm={7}>
+                  <Form.Item
+                    label="Class"
+                    name="class"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please enter Class',
+                        whitespace: true,
+                      },
+                    ]}
+                  >
+                    <Input placeholder="9th Standard" />
+                  </Form.Item>
+                </Col>
+              )}
               <Col sm={7}>
-                <Form.Item
-                  label="Class"
-                  name="class"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please enter Class',
-                      whitespace: true,
-                    },
-                  ]}
-                >
-                  <Input placeholder="9th Standard" />
-                </Form.Item>
-              </Col>
-              <Col sm={7}>
-                <Form.Item
-                  label="Subject"
-                  name="subject"
-                >
+                <Form.Item label="Subject" name="subject">
                   <Input placeholder="Math-Science" />
                 </Form.Item>
               </Col>
@@ -143,7 +159,7 @@ const SignUp = () => {
               <Input type="email" placeholder="example@gmail.com" />
             </Form.Item>
             <Form.Item
-              label="Password"
+              label="Create Password"
               name="password"
               rules={[
                 {
@@ -165,7 +181,12 @@ const SignUp = () => {
               />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit" block loading={btnLoading}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                loading={btnLoading}
+              >
                 Create Account
               </Button>
             </Form.Item>

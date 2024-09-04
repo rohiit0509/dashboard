@@ -300,8 +300,8 @@ function CourseView() {
               style={{ height: '100%' }}
             >
               <Typography.Title level={2}>{course.courseName}</Typography.Title>
-              <Typography.Text>{course.subHeading}</Typography.Text>
-              <Typography.Text type="secondary">{course.price}</Typography.Text>
+              <Typography.Text style={{maxWidth:"800px"}}>{course.subHeading}</Typography.Text>
+              <Typography.Text type="secondary">₹{course.price}</Typography.Text>
             </Flex>
           ) : (
             <div

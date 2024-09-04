@@ -1,13 +1,7 @@
 import { LockOutlined } from '@ant-design/icons';
 import { Button, Col, Flex, Row, Typography } from 'antd';
-import { useNavigate } from 'react-router-dom';
 const { Title, Text } = Typography;
-const PurchaseModal = () => {
-  const navigate = useNavigate();
-
-  const handleCancel = () => {
-    navigate(-1);
-  };
+const PurchaseModal = ({ handleClose }: { handleClose: () => void }) => {
   return (
     <Flex vertical align="center" gap={20}>
       <Button icon={<LockOutlined />} />
@@ -23,7 +17,7 @@ const PurchaseModal = () => {
       </Text>
       <Row gutter={10}>
         <Col sm={12}>
-          <Button type="default" block onClick={handleCancel}>
+          <Button type="default" block onClick={handleClose}>
             Cancel
           </Button>
         </Col>

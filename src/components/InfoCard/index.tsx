@@ -1,5 +1,6 @@
 import { Avatar, Button, Flex, Typography } from 'antd';
 import {
+  ButtonWrapper,
   InfoCardContainer,
   TagContainer,
   TagName,
@@ -8,6 +9,7 @@ import SmallTickIcon from '../../assets/svgs/SmallTickIcon';
 import TeacherTag from '../../assets/svgs/TeacherTag';
 import { UserOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import { ReactNode } from 'react';
 const { Title, Text } = Typography;
 
 interface InfoCardProps {
@@ -17,6 +19,12 @@ interface InfoCardProps {
   buttonLabel: string;
   tagName: string;
   buttonAction?: string;
+  extra?: ReactNode;
+  buttonType?: 'link' | 'text' | 'default' | 'primary' | 'dashed' | undefined;
+  avatarSize?: number;
+  icon?:ReactNode;
+  hover?:boolean
+  onClick?:()=>void
 }
 const InfoCard = ({
   name,
@@ -25,24 +33,34 @@ const InfoCard = ({
   buttonLabel,
   tagName,
   buttonAction,
+  extra,
+  buttonType = 'default',
+  avatarSize = 50,
+  icon,
+  hover =false,
+  onClick
 }: InfoCardProps) => {
   return (
     <InfoCardContainer>
       <Flex>
         <Flex align="center" gap={10} style={{ width: '100%' }}>
-          <Avatar icon={<UserOutlined />} shape="square" size={50} />
+          <Avatar icon={<UserOutlined />} shape="square" size={avatarSize} />
           <Flex vertical>
             <Title level={5}>{name}</Title>
             <Text type="secondary">{email}</Text>
+            {extra && extra}
           </Flex>
         </Flex>
-        <TagContainer>
-          <TeacherTag />
-          <TagName>{tagName}</TagName>
-        </TagContainer>
+        {tagName !== '' && (
+          <TagContainer>
+            <TeacherTag />
+            <TagName>{tagName}</TagName>
+          </TagContainer>
+        )}
       </Flex>
       {description && <Text>Interaction On: {description}</Text>}
-      <Button type="default" icon={<SmallTickIcon />}>
+      <ButtonWrapper hover={hover}>
+      <Button type={buttonType} icon={icon} onClick={onClick} block>
         {buttonAction ? (
           <Link to={buttonAction} target="_blank">
             {buttonLabel}
@@ -51,6 +69,7 @@ const InfoCard = ({
           buttonLabel
         )}
       </Button>
+      </ButtonWrapper>
     </InfoCardContainer>
   );
 };

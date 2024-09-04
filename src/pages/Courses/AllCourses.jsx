@@ -12,14 +12,15 @@ import {
 } from 'firebase/firestore';
 import CourseModal from './CourseModal';
 import { Button, Card, Flex, Modal, Row, Spin, Typography } from 'antd';
-import { DeleteOutlined, StepForwardOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
 import TrashIcon from '../../assets/svgs/TrashIcon';
 import { CardWrapper, OfferContainer } from '../../styles/table';
 const { Title, Text } = Typography;
 import { TrashIconWrapper } from '../../styles/logo';
 import { AuthContext } from '../../helper/auth';
-import PurchaseModal from '../../Modals/PurchaseModal';
+import SmallTickIcon from '../../assets/svgs/SmallTickIcon';
+import PlayIcon from '../../assets/svgs/PlayIcon'
 const { confirm } = Modal;
 
 function AllCourses() {
@@ -30,11 +31,11 @@ function AllCourses() {
   const handleClose = () => setShowModal('');
   const [loading, setLoading] = useState(false);
   const { currentUser } = useContext(AuthContext);
-
+  const currentRole = currentUser.role;
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      if (currentUser.role === 'admin') {
+      if (currentRole === 'admin') {
         // Fetch courses created by the admin
         const coursesQuery = query(
           collection(db, 'Courses'),
@@ -118,84 +119,89 @@ function AllCourses() {
       },
     });
   };
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (currentUser.role === 'user' && courses.length === 0 && !loading) {
-        setShowModal('purchaseModal');
-      } else {
-        setShowModal('');
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [courses, currentUser, loading]);
 
   return (
     <>
       <Spin spinning={loading} centered>
-        {currentUser.role !== 'user' && (
+        {currentRole !== 'user' && (
           <Button type="primary" onClick={handleShow}>
             Create Course
           </Button>
         )}
 
         <div className="mt-8">
-          <h2 className="text-[20px] font-semibold pb-5">On Going Courses</h2>
+          <h2 className="text-[20px] font-semibold pb-5">Courses</h2>
           <Flex wrap gap={20}>
             {courses.length !== 0 ? (
-              courses.map((course) => (
-                <CardWrapper>
-                  <Card
-                    hoverable
-                    style={{ width: 300, cursor: 'pointer' }}
-                    cover={
-                      <img
-                        alt="example"
-                        src="https://cdn.prod.website-files.com/5a9ee6416e90d20001b20038/64f5c1c1f5723d7453a3de42_Rectangle%20(94).svg"
-                      />
-                    }
-                    actions={[
-                      <Flex gap={5}>
-                        <Button
-                          block
-                          type="default"
-                          onClick={() => navigate(`/view-courses/${course.id}`)}
-                          icon={<StepForwardOutlined />}
-                        >
-                          Start
-                        </Button>
-                        <Button
-                          icon={<DeleteOutlined />}
-                          onClick={() => showConfirm(course.id)}
+              courses.map((course) => {
+                return (
+                  <CardWrapper>
+                    <Card
+                      hoverable
+                      style={{ width: 300, cursor: 'pointer' }}
+                      cover={
+                        <img
+                          alt="example"
+                          src="https://cdn.prod.website-files.com/5a9ee6416e90d20001b20038/64f5c1c1f5723d7453a3de42_Rectangle%20(94).svg"
                         />
-                      </Flex>,
-                    ]}
-                  >
-                    <Meta
-                      title={
-                        course.courseName !== '' ? course.courseName : 'Demo'
                       }
-                      description={
-                        course.subHeading !== ''
-                          ? course.subHeading
-                          : 'Subheading'
-                      }
-                    />
-                    <Row
-                      justify={'space-between'}
-                      style={{ marginTop: '20px' }}
+                      actions={[
+                        <Flex gap={5}>
+                          <Button
+                            block
+                            type='default'
+                            onClick={() =>
+                              navigate(`/view-courses/${course.id}`)
+                            }
+                            icon={
+                              currentRole == 'user' ? (
+                                <SmallTickIcon />
+                              ) : (
+                                <PlayIcon/>
+                              )
+                            }
+                          >
+                            {currentRole == 'user'
+                              ? 'Add to Learning'
+                              : 'Start'}
+                          </Button>
+                          {currentRole !== 'user' && (
+                            <Button
+                              icon={<DeleteOutlined />}
+                              onClick={() => showConfirm(course.id)}
+                            />
+                          )}
+                        </Flex>,
+                      ]}
                     >
-                      <Title level={5}>
-                        ₹{course.price !== '' ? course.price : '100'}
-                      </Title>
-                      <OfferContainer>
-                        <Title level={5}>{`60%off`}</Title>
-                        <Text className="text-xs">Limited Time offer</Text>
-                      </OfferContainer>
-                    </Row>
-                  </Card>
-                </CardWrapper>
-              ))
+                      <Meta
+                        title={
+                          course.courseName !== '' ? course.courseName : 'Demo'
+                        }
+                        description={
+                          course.subHeading !== '' ? (
+                            <Text ellipsis>{course.subHeading}</Text>
+                          ) : (
+                            'Subheading'
+                          )
+                        }
+                      />
+                      <Row
+                        justify={'space-between'}
+                        style={{ marginTop: '20px' }}
+                      >
+                        <Title level={5}>
+                          ₹{course.price !== '' ? course.price : '100'}
+                        </Title>
+                        <OfferContainer>
+                          <Title level={5}>{`60%off`}</Title>
+                          <Text className="text-xs">Limited Time offer</Text>
+                        </OfferContainer>
+                      </Row>
+                    </Card>
+                  </CardWrapper>
+                );
+              })
             ) : (
               <>
                 <Typography.Text>No course available right now</Typography.Text>
@@ -213,17 +219,6 @@ function AllCourses() {
         onCancel={handleClose}
       >
         <CourseModal handleClose={handleClose} handleSave={handleSave} />
-      </Modal>
-      <Modal
-        width={400}
-        closable={false}
-        open={showModal == 'purchaseModal'}
-        destroyOnClose
-        footer={null}
-        maskClosable={false}
-        onCancel={handleClose}
-      >
-        <PurchaseModal />
       </Modal>
     </>
   );

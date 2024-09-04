@@ -3,13 +3,14 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  QuestionOutlined,
 } from '@ant-design/icons';
 import { Button, Flex, Layout, Menu, theme, Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
 import { app } from '../firebase';
 import { menuItems } from './data';
-import { LogoContainer, LogoWrapper } from '../styles/logo';
+import { LogoContainer, LogoWrapper, SidebarFooter } from '../styles/logo';
 import LogoImage from '../assets/svgs/LogoImage';
 import { AuthContext } from '../helper/auth';
 
@@ -42,7 +43,8 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     setDefaultSelectedKey(getDefaultSelectedKey());
   }, [location]);
 
-  const filteredMenuItems = menuItems.filter((item) =>item.roles.includes(role as string),
+  const filteredMenuItems = menuItems.filter((item) =>
+    item.roles.includes(role as string),
   );
 
   const handleMenuClick = ({ key }: { key: string }) => {
@@ -80,6 +82,11 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           items={filteredMenuItems}
           onClick={handleMenuClick}
         />
+        {/* <SidebarFooter collapsed={collapsed}>
+          <Flex>
+            <Button icon={<QuestionOutlined />} type='default' ghost/>
+          </Flex>
+        </SidebarFooter> */}
       </Sider>
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>

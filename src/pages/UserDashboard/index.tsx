@@ -1,7 +1,7 @@
-import { Button, Card, Flex, Row, Spin, Typography } from 'antd';
+import { Button, Card, Flex, Rate, Row, Spin, Typography } from 'antd';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import InfoCard from '../../components/InfoCard';
-import { CardWrapper, OfferContainer } from '../../styles/table';
+import { CardWrapper } from '../../styles/table';
 import { StepForwardOutlined } from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,8 @@ import { AuthContext } from '../../helper/auth';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 import useNotification from '../../hooks/useNotifier';
+import SmallTickIcon from '../../assets/svgs/SmallTickIcon';
+import PlayIcon from '../../assets/svgs/PlayIcon';
 const { Title, Text } = Typography;
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -54,6 +56,7 @@ const UserDashboard = () => {
           email="Rohit@gmail.com"
           buttonLabel="Verified"
           tagName="Student"
+          icon={<SmallTickIcon />}
         />
       </div>
       <div className="mt-8">
@@ -77,16 +80,26 @@ const UserDashboard = () => {
                         block
                         type="default"
                         onClick={() => navigate(`/view-courses/${course.id}`)}
-                        icon={<StepForwardOutlined />}
+                        icon={<PlayIcon/>}
                       >
-                        Start
+                        Resume
                       </Button>
-                    </Flex>,
+                    </Flex>
                   ]}
                 >
                   <Meta
                     title={
-                      course.courseName !== '' ? course.courseName : 'Demo'
+                      <Flex justify="space-between">
+                        {course.courseName !== '' ? course.courseName : 'Demo'}
+                        <Flex gap={2} align="center">
+                          <Rate
+                            count={1}
+                            value={1}
+                            style={{ fontSize: '12px' }}
+                          />
+                          <Text>4.5 (12k)</Text>
+                        </Flex>
+                      </Flex>
                     }
                     description={
                       course.subHeading !== ''
@@ -94,15 +107,6 @@ const UserDashboard = () => {
                         : 'Subheading'
                     }
                   />
-                  <Row justify={'space-between'} style={{ marginTop: '20px' }}>
-                    <Title level={5}>
-                      ₹{course.price !== '' ? course.price : '100'}
-                    </Title>
-                    <OfferContainer>
-                      <Title level={5}>{`60%off`}</Title>
-                      <Text className="text-xs">Limited Time offer</Text>
-                    </OfferContainer>
-                  </Row>
                 </Card>
               </CardWrapper>
             ))
