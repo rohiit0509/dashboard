@@ -26,7 +26,6 @@ const { confirm } = Modal;
 
 function AllCourses() {
   const [showModal, setShowModal] = useState('');
-  console.log('Asdfasdf', showModal);
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
   const handleShow = () => setShowModal('courseCreateModal');

@@ -11,7 +11,6 @@ const AllResults = () => {
   const [isLoading, setIsLoading] = useState(true);
   const userId = 'USER_ID'; // Replace with actual user ID
   const { currentUser } = useContext(AuthContext);
-console.log("asdfasdfds", currentUser)
 
   useEffect(() => {
     const fetchAllResults = async () => {

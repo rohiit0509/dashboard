@@ -13,7 +13,6 @@ import {
 import { db } from '../../firebase';
 import useNotification from '../../hooks/useNotifier';
 import PurchaseModal from '../../Modals/PurchaseModal';
-import SmallTickIcon from '../../assets/svgs/SmallTickIcon';
 const { Title } = Typography;
 const LiveSession = () => {
   const [webinars, setWebinars] = useState<any[]>([]);
@@ -23,7 +22,6 @@ const LiveSession = () => {
   const [showModal, setShowModal] = useState('');
 
   const handleClose = () => setShowModal('');
-  console.log('ASdfasdasdfsa', admins);
   const fetchUserEmail = async (authorId: string) => {
     try {
       const userDoc = await getDoc(doc(db, 'userDetails', authorId));
