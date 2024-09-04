@@ -3,14 +3,13 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  QuestionOutlined,
 } from '@ant-design/icons';
 import { Button, Flex, Layout, Menu, theme, Tooltip } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
 import { app } from '../firebase';
 import { menuItems } from './data';
-import { LogoContainer, LogoWrapper, SidebarFooter } from '../styles/logo';
+import { LogoContainer, LogoWrapper } from '../styles/logo';
 import LogoImage from '../assets/svgs/LogoImage';
 import { AuthContext } from '../helper/auth';
 
@@ -67,7 +66,11 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed} theme="light">
-        <LogoWrapper onClick={() => navigate('/add-test')}>
+        <LogoWrapper
+          onClick={() => {
+            role == 'user' ? navigate('/dashboard') : navigate('/add-test');
+          }}
+        >
           {collapsed && (
             <LogoContainer>
               <img src="/logo.png" alt="logo" />

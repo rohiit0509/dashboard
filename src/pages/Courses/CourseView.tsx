@@ -22,7 +22,6 @@ function CourseView() {
   const { currentUser } = useContext(AuthContext);
   const { courseId } = useParams();
   const [course, setCourse] = useState<Course | null>(null);
-  console.log('adsffsafas', course);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedContent, setSelectedContent] = useState<string>('');
   const [selectedIndexes, setSelectedIndexes] = useState<SelectedIndexes>({

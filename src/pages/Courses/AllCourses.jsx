@@ -20,11 +20,13 @@ const { Title, Text } = Typography;
 import { TrashIconWrapper } from '../../styles/logo';
 import { AuthContext } from '../../helper/auth';
 import SmallTickIcon from '../../assets/svgs/SmallTickIcon';
-import PlayIcon from '../../assets/svgs/PlayIcon'
+import PlayIcon from '../../assets/svgs/PlayIcon';
+import PurchaseModal from '../../Modals/PurchaseModal';
 const { confirm } = Modal;
 
 function AllCourses() {
   const [showModal, setShowModal] = useState('');
+  console.log('Asdfasdf', showModal);
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
   const handleShow = () => setShowModal('courseCreateModal');
@@ -149,15 +151,17 @@ function AllCourses() {
                         <Flex gap={5}>
                           <Button
                             block
-                            type='default'
-                            onClick={() =>
-                              navigate(`/view-courses/${course.id}`)
-                            }
+                            type="default"
+                            onClick={() => {
+                              currentRole == 'user'
+                                ? setShowModal('purchaseModal')
+                                : navigate(`/view-courses/${course.id}`);
+                            }}
                             icon={
                               currentRole == 'user' ? (
                                 <SmallTickIcon />
                               ) : (
-                                <PlayIcon/>
+                                <PlayIcon />
                               )
                             }
                           >
@@ -219,6 +223,17 @@ function AllCourses() {
         onCancel={handleClose}
       >
         <CourseModal handleClose={handleClose} handleSave={handleSave} />
+      </Modal>
+      <Modal
+        width={400}
+        closable={false}
+        open={showModal == 'purchaseModal'}
+        destroyOnClose
+        footer={null}
+        maskClosable={false}
+        onCancel={handleClose}
+      >
+        <PurchaseModal handleClose={handleClose} />
       </Modal>
     </>
   );

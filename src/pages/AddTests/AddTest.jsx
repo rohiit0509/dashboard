@@ -12,6 +12,7 @@ import {
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Button } from 'antd';
+import { AuthContext } from '../../helper/auth';
 
 const AddTest = () => {
   const {
@@ -26,6 +27,7 @@ const AddTest = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [numQuestions, setNumQuestions] = useState(0);
+  const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem('testForm'));
@@ -116,6 +118,7 @@ const AddTest = () => {
         timer: Number(formData.timer),
         numberOfQuestions: Number(formData.numberOfQuestions),
         createdAt: new Date(),
+        authorId: currentUser?.userId,
       });
 
       console.log('Test Document written with ID: ', testRef.id);

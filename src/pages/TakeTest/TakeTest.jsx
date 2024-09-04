@@ -1,6 +1,6 @@
 // src/components/TakeTest.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   collection,
   getDocs,
@@ -17,6 +17,7 @@ import QuestionNavigation from './QuestionNavigation';
 import Timer from './Timer';
 import CheerIcon from '../../assets/svgs/CheerIcon';
 import { Button, Flex, Result } from 'antd';
+import { AuthContext } from '../../helper/auth';
 
 const TakeTest = () => {
   const { testId } = useParams();
@@ -28,7 +29,9 @@ const TakeTest = () => {
   const [quizEnded, setQuizEnded] = useState(false);
   const [test, setTest] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const userId = 'USER_ID'; // Replace with actual user ID
+  const { currentUser } = useContext(AuthContext);
+
+  const userId = currentUser?.userId;
   const navigate = useNavigate();
   useEffect(() => {
     const fetchTestAndQuestions = async () => {
