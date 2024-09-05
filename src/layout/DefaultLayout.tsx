@@ -19,9 +19,8 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { currentUser } = useContext(AuthContext);
   const role = currentUser?.role;
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(
-    Boolean(localStorage.getItem('sidebar')),
-  );
+  const [collapsed, setCollapsed] = useState(localStorage.getItem('sidebar')=='true');
+console.log("Asdfafsdfsa",currentUser)
   const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },

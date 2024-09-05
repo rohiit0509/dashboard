@@ -47,7 +47,7 @@ const [tableDataLoader,setTableDataLoader] = useState(false)
 
   useEffect(() => {
     fetchAdmins();
-  }, []);
+  }, [modalOpen]);
 
   const handleDeleteAccount = async (userId: string) => {
     try {
