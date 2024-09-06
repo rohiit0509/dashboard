@@ -19,7 +19,6 @@ dayjs.extend(utc);
 const ScheduleWebniarModal = ({ handleClose,fetchWebinars }: { handleClose: () => void, fetchWebinars:()=>void }) => {
   const { currentUser } = useContext(AuthContext);
   const [btnLoading, setBtnLoading] = useState(false);
-
   interface IFormProps {
     title: string;
     meetLink: string;

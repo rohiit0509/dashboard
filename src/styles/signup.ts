@@ -36,3 +36,11 @@ export const FormWrapper = styled.div`
   overflow: hidden;
   box-shadow: 0px 24px 50px 0px #4e8ae21a;
 `;
+export const UserProfileWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  .ant-divider-horizontal {
+    margin: 16px 0;
+  }
+`

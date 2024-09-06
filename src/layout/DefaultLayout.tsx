@@ -1,17 +1,18 @@
 import React, { ReactNode, useState, useEffect, useContext } from 'react';
 import {
-  LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
-import { Button, Flex, Layout, Menu, theme, Tooltip } from 'antd';
+import { Avatar, Button, Flex, Layout, Menu, Popover, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getAuth, signOut } from 'firebase/auth';
-import { app } from '../firebase';
 import { menuItems } from './data';
 import { LogoContainer, LogoWrapper } from '../styles/logo';
 import LogoImage from '../assets/svgs/LogoImage';
 import { AuthContext } from '../helper/auth';
+import UserProfile from '../components/UserProfile';
+import { getAuth, signOut } from 'firebase/auth';
+import { app } from '../firebase';
 
 const { Header, Sider, Content } = Layout;
 
@@ -19,7 +20,9 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { currentUser } = useContext(AuthContext);
   const role = currentUser?.role;
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(localStorage.getItem('sidebar')=='true');
+  const [collapsed, setCollapsed] = useState(
+    localStorage.getItem('sidebar') == 'true',
+  );
   const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -55,12 +58,17 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     const auth = getAuth(app);
     try {
       await signOut(auth);
+
       console.log('User signed out successfully');
     } catch (error) {
       console.error('Error signing out:', error);
     }
   };
-
+  const initials = currentUser?.name
+    .split(' ')
+    .map((word) => word.charAt(0))
+    .join('')
+    .toUpperCase();
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed} theme="light">
@@ -109,13 +117,13 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
                 height: 64,
               }}
             />
-            <Tooltip title="Sign Out">
-              <Button
-                type="text"
-                icon={<LogoutOutlined />}
-                onClick={handleLogout}
-              />
-            </Tooltip>
+            <Popover
+              content={<UserProfile initials={initials} />}
+              trigger="click"
+              placement="bottomRight"
+            >
+              <Avatar style={{ backgroundColor: '#704FE4' }}>{initials}</Avatar>
+            </Popover>
           </Flex>
         </Header>
         <Content

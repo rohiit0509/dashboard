@@ -22,19 +22,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userId = user.uid;
-
         try {
           const userDoc = await getDoc(doc(db, 'userDetails', userId));
-
           if (userDoc.exists()) {
             const userData = userDoc.data() as UserDetails;
-
-            // Only update currentUser if the logged-in user is the same as the existing currentUser
-            if (!currentUser || currentUser.userId === userId) {
-              setCurrentUser({
-                ...userData,
-              });
-            }
+            setCurrentUser({
+              ...userData,
+              userId: userId,
+            });
           } else {
             console.error('No such user document!');
           }
@@ -44,12 +39,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         setCurrentUser(null);
       }
-
       setPending(false);
     });
 
     return () => unsubscribe();
-  }, [currentUser]);
+  }, []);
+
   if (pending) {
     return <Loader />;
   }
