@@ -5,7 +5,7 @@ import { auth, db } from '../firebase';
 import { useState } from 'react';
 import useNotification from '../hooks/useNotifier';
 
-const AddNewFacultyMember = ({ handleClose }: { handleClose: () => void }) => {
+const AddNewFacultyMember = ({ handleClose,fetchAdmins }: { handleClose: () => void , fetchAdmins:()=>void}) => {
   const { openNotification } = useNotification();
   const [btnLoading, setBtnLoading] = useState(false);
   const onFinish = async (values: any) => {
@@ -31,6 +31,7 @@ const AddNewFacultyMember = ({ handleClose }: { handleClose: () => void }) => {
       });
       setBtnLoading(false);
       openNotification('success', 'Faculty member created successfully!', '');
+      fetchAdmins()
       handleClose();
     } catch (error) {
       setBtnLoading(false);

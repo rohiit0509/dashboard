@@ -49,8 +49,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
 
     return () => unsubscribe();
-  }, [currentUser]); // Ensure that we only update `currentUser` when necessary
-
+  }, [currentUser]);
   if (pending) {
     return <Loader />;
   }

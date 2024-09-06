@@ -16,7 +16,7 @@ import { AuthContext } from '../helper/auth';
 import { useContext, useState } from 'react';
 dayjs.extend(utc);
 
-const ScheduleWebniarModal = ({ handleClose }: { handleClose: () => void }) => {
+const ScheduleWebniarModal = ({ handleClose,fetchWebinars }: { handleClose: () => void, fetchWebinars:()=>void }) => {
   const { currentUser } = useContext(AuthContext);
   const [btnLoading, setBtnLoading] = useState(false);
 
@@ -49,6 +49,7 @@ const ScheduleWebniarModal = ({ handleClose }: { handleClose: () => void }) => {
     };
     try {
       await addDoc(collection(db, 'scheduleWebinars'), webinarData);
+      fetchWebinars()
     } catch (error) {
       console.error('Error scheduling webinar:', error);
     } finally {

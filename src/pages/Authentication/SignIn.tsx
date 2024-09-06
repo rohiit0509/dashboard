@@ -28,8 +28,6 @@ const SignIn: React.FC = () => {
     const { email, password } = values;
     setLoading(true);
     try {
-      console.log(email, password);
-
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,

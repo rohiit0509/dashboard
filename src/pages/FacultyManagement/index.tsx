@@ -47,7 +47,7 @@ const [tableDataLoader,setTableDataLoader] = useState(false)
 
   useEffect(() => {
     fetchAdmins();
-  }, [modalOpen]);
+  }, []);
 
   const handleDeleteAccount = async (userId: string) => {
     try {
@@ -240,7 +240,7 @@ const [tableDataLoader,setTableDataLoader] = useState(false)
         destroyOnClose
         onCancel={handleClose}
       >
-        <AddNewFacultyMember handleClose={handleClose} />
+        <AddNewFacultyMember handleClose={handleClose} fetchAdmins={fetchAdmins} />
       </Modal>
     </>
   );

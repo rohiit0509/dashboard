@@ -63,8 +63,8 @@ const ScheduleWebinar = () => {
   };
 
   useEffect(() => {
-    !modalOpen && fetchWebinars();
-  }, [modalOpen]);
+    fetchWebinars();
+  }, []);
   return (
     <>
       <Flex
@@ -88,7 +88,7 @@ const ScheduleWebinar = () => {
         destroyOnClose
         onCancel={handleClose}
       >
-        <ScheduleWebniarModal handleClose={handleClose} />
+        <ScheduleWebniarModal handleClose={handleClose} fetchWebinars={fetchWebinars}/>
       </Modal>
     </>
   );
