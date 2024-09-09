@@ -93,6 +93,7 @@ const ListTests = () => {
 
             return {
               ...test,
+              userId,
               userAttempted,
               attemptCount,
             };
@@ -112,6 +113,7 @@ const ListTests = () => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
+  console.log("Adsfsdfas",tests)
   return (
     <Flex vertical gap={80}>
       <div>
@@ -216,7 +218,7 @@ const ListTests = () => {
                           </span>
                         </p>
                         <Link
-                          //  to={`/take-test/${test.id}`}
+                           to={`/test-results/${test.id}/${test.userId}`}
                           className="inline-block px-5 py-2 bg-[#3D3D3D] hover:bg-[#C4ED2F] hover:text-[#2D3748] text-[12px] font-bold text-white rounded-[10px]"
                         >
                           View Results

@@ -47,7 +47,7 @@ const routespath = [
     restricted: true,
   },
   {
-    path: '/test-results/:testId',
+    path: '/test-results/:testId/:userId',
     component: <TestResults />,
     restricted: true,
   },

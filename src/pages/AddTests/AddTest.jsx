@@ -30,8 +30,10 @@ const AddTest = () => {
   const [numQuestions, setNumQuestions] = useState(0);
   const { currentUser } = useContext(AuthContext);
   const [courses, setCourses] = useState([]);
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const role = currentUser.role;
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem('testForm'));
@@ -228,19 +230,26 @@ const AddTest = () => {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const coursesQuery = query(
-        collection(db, 'Courses'),
-        where('authorId', '==', currentUser.userId),
-      );
+      if (role == 'admin') {
+        const coursesQuery = query(
+          collection(db, 'Courses'),
+          where('authorId', '==', currentUser.userId),
+        );
 
-      const querySnapshot = await getDocs(coursesQuery);
-      const adminCourses = querySnapshot.docs.map((doc) => ({
-        value: doc.id,
-        label: doc.data().courseName,
-      }));
-      setCourses(adminCourses);
-
-      setLoading(false);
+        const querySnapshot = await getDocs(coursesQuery);
+        const adminCourses = querySnapshot.docs.map((doc) => ({
+          value: doc.id,
+          label: doc.data().courseName,
+        }));
+        setCourses(adminCourses);
+      } else {
+        const querySnapshot = await getDocs(collection(db, 'Courses'));
+        const allCourses = querySnapshot.docs.map((doc) => ({
+          value: doc.id,
+          label: doc.data().courseName,
+        }));
+        setCourses(allCourses);
+      }
     } catch (error) {
       console.error('Error fetching courses:', error);
     } finally {
@@ -251,6 +260,10 @@ const AddTest = () => {
   useEffect(() => {
     fetchCourses();
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   return (
     <>
       {courses?.length !== 0 ? (

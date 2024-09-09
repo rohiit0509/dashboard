@@ -16,6 +16,7 @@ export const menuItems = [
     icon: <DashboardOutlined />,
     label: 'Dashboard',
     route: '/dashboard',
+    activeRoute: ['/dashboard'],
     roles: ['user'],
   },
   {
@@ -23,14 +24,17 @@ export const menuItems = [
     icon: <FileAddOutlined />,
     label: 'Add Test',
     route: '/add-test',
-    roles: ['admin','superAdmin'],
+    activeRoute: ['/add-test'],
+    roles: ['admin', 'superAdmin'],
   },
   {
     key: '3',
     icon: <FileProtectOutlined />,
     label: 'All Tests',
     route: '/all-tests',
-    roles: ['admin','superAdmin'],
+    activeRoute: ['/all-tests'],
+
+    roles: ['admin', 'superAdmin'],
   },
   {
     key: '4',
@@ -38,6 +42,7 @@ export const menuItems = [
     label: 'Test',
     route: '/tests',
     roles: ['user'],
+    activeRoute: ['/tests','/test-results'],
   },
   {
     key: '5',
@@ -45,34 +50,39 @@ export const menuItems = [
     label: 'Live Session',
     route: '/live-session',
     roles: ['user'],
+    activeRoute: ['/live-session'],
   },
- 
+
   {
     key: '6',
     icon: <AreaChartOutlined />,
     label: 'Results',
     route: '/all-results',
-    roles: ['admin','superAdmin'],
+    activeRoute: ['/all-results', '/test-results'],
+    roles: ['admin', 'superAdmin'],
   },
   {
     key: '7',
     icon: <ScheduleOutlined />,
     label: 'Schedule Webinar',
     route: '/schedule-webinar',
-    roles: ['admin','superAdmin'],
+    activeRoute: ['/schedule-webinar'],
+    roles: ['admin', 'superAdmin'],
   },
   {
     key: '8',
     icon: <PullRequestOutlined />,
     label: 'Session Requests',
     route: '/session-requests',
-    roles: ['admin','superAdmin'],
+    activeRoute: ['/session-requests'],
+    roles: ['admin', 'superAdmin'],
   },
   {
     key: '9',
     icon: <UsergroupAddOutlined />,
     label: 'Management',
     route: '/management',
+    activeRoute: ['/management'],
     roles: ['superAdmin'],
   },
   {
@@ -80,13 +90,15 @@ export const menuItems = [
     icon: <ShoppingCartOutlined />,
     label: 'Courses',
     route: '/courses',
-    roles: ['admin', 'user','superAdmin'],
+    activeRoute: ['/courses', '/view-course'],
+    roles: ['admin', 'user', 'superAdmin'],
   },
   {
     key: '11',
-    icon: <SettingOutlined/>,
+    icon: <SettingOutlined />,
     label: 'Settings',
     route: '/user-settings',
+    activeRoute: ['/user-settings'],
     roles: ['user'],
   },
   // {

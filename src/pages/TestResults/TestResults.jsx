@@ -6,11 +6,10 @@ import { TableWrapper } from '../../styles/table';
 import { Table } from 'antd';
 
 const TestResults = () => {
-  const { testId } = useParams();
+  const { testId, userId } = useParams();
   const [results, setResults] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const userId = 'USER_ID'; // Replace with actual user ID
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -27,9 +26,14 @@ const TestResults = () => {
         }
 
         // Fetch questions to get correct answers
-        const questionsCollection = collection(db, 'Tests', testId, 'Questions');
+        const questionsCollection = collection(
+          db,
+          'Tests',
+          testId,
+          'Questions',
+        );
         const questionsSnapshot = await getDocs(questionsCollection);
-        const questionsData = questionsSnapshot.docs.map(doc => ({
+        const questionsData = questionsSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
@@ -73,9 +77,11 @@ const TestResults = () => {
               <tr key={index}>
                 <td className="py-2 px-4 border-b text-center">{index + 1}</td>
                 <td className="py-2 px-4 border-b text-center">
-                  {answer !== null ? answer+1 : 'Not Answered'}
+                  {answer !== null ? answer + 1 : 'Not Answered'}
                 </td>
-                <td className="py-2 px-4 border-b text-center">{correctAnswer+1}</td>
+                <td className="py-2 px-4 border-b text-center">
+                  {correctAnswer + 1}
+                </td>
                 <td className="py-2 px-4 border-b text-center">
                   {answer === correctAnswer ? 'Correct' : 'Incorrect'}
                 </td>

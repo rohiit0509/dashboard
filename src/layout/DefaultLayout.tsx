@@ -30,7 +30,9 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const getDefaultSelectedKey = () => {
     const selectedItem = menuItems.find((menuItem) =>
-      location.pathname.startsWith(menuItem.route),
+      menuItem.activeRoute.some((activePath) =>
+        location.pathname.startsWith(activePath),
+      ),
     );
     return selectedItem ? selectedItem.key : '1';
   };
