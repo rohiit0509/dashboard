@@ -24,7 +24,6 @@ const UserDashboard = () => {
     setLoading(true);
     try {
       const userId = currentUser?.userId;
-      console.log("ASdadsfadsf",userId)
       const coursesRef = collection(db, 'Courses');
       const q = query(
         coursesRef,

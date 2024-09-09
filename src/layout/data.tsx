@@ -42,7 +42,7 @@ export const menuItems = [
     label: 'Test',
     route: '/tests',
     roles: ['user'],
-    activeRoute: ['/tests','/test-results'],
+    activeRoute: ['/tests',],
   },
   {
     key: '5',

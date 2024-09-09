@@ -14,7 +14,6 @@ import { Button, Flex, Result } from 'antd';
 import { AuthContext } from '../../helper/auth';
 const ListTests = () => {
   const [tests, setTests] = useState([]);
-  console.log('ASdfasdfds', tests);
   const [isLoading, setIsLoading] = useState(true);
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -113,7 +112,7 @@ const ListTests = () => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  console.log("Adsfsdfas",tests)
+
   return (
     <Flex vertical gap={80}>
       <div>

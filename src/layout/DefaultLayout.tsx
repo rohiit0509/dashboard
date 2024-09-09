@@ -2,7 +2,6 @@ import React, { ReactNode, useState, useEffect, useContext } from 'react';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Flex, Layout, Menu, Popover, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -11,8 +10,6 @@ import { LogoContainer, LogoWrapper } from '../styles/logo';
 import LogoImage from '../assets/svgs/LogoImage';
 import { AuthContext } from '../helper/auth';
 import UserProfile from '../components/UserProfile';
-import { getAuth, signOut } from 'firebase/auth';
-import { app } from '../firebase';
 
 const { Header, Sider, Content } = Layout;
 
@@ -29,14 +26,14 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   } = theme.useToken();
 
   const getDefaultSelectedKey = () => {
-    const selectedItem = menuItems.find((menuItem) =>
+    const selectedItems = menuItems.filter((menuItem) =>
       menuItem.activeRoute.some((activePath) =>
         location.pathname.startsWith(activePath),
       ),
     );
-    return selectedItem ? selectedItem.key : '1';
+    return selectedItems.length > 0 ? selectedItems[0].key : '1';
   };
-
+  
   const [defaultSelectedKey, setDefaultSelectedKey] = useState(
     getDefaultSelectedKey(),
   );
@@ -56,16 +53,6 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
-  const handleLogout = async () => {
-    const auth = getAuth(app);
-    try {
-      await signOut(auth);
-
-      console.log('User signed out successfully');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
   const initials = currentUser?.name
     .split(' ')
     .map((word) => word.charAt(0))
