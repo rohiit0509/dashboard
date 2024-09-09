@@ -24,11 +24,13 @@ const UserDashboard = () => {
     setLoading(true);
     try {
       const userId = currentUser?.userId;
+      console.log("ASdadsfadsf",userId)
       const coursesRef = collection(db, 'Courses');
       const q = query(
         coursesRef,
         where('consumerId', 'array-contains', userId),
       );
+      
       const querySnapshot = await getDocs(q);
 
       const purchasedCourses = querySnapshot.docs.map((doc) => ({
@@ -43,7 +45,6 @@ const UserDashboard = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchPurchasedCourses();
   }, []);

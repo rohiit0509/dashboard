@@ -11,7 +11,7 @@ import {
   where,
 } from 'firebase/firestore';
 import CourseModal from './CourseModal';
-import { Button, Card, Flex, Modal, Row, Spin, Typography } from 'antd';
+import { Button, Card, Flex, Modal, Result, Row, Spin, Typography } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
 import TrashIcon from '../../assets/svgs/TrashIcon';
@@ -124,17 +124,20 @@ function AllCourses() {
   return (
     <>
       <Spin spinning={loading} centered>
-        {currentRole !== 'user' && (
-          <Button type="primary" onClick={handleShow}>
-            Create Course
-          </Button>
-        )}
-
         <div className="mt-8">
-          <h2 className="text-[20px] font-semibold pb-5">Courses</h2>
-          <Flex wrap gap={20}>
-            {courses.length !== 0 ? (
-              courses.map((course) => {
+          <Flex align="center" justify="space-between">
+            <h2 className="text-[20px] font-semibold pb-5">Courses</h2>
+            {currentRole !== 'user' && (
+              <Button type="primary" onClick={handleShow}
+              className='mb-5'
+              >
+                Create Course
+              </Button>
+            )}
+          </Flex>
+          {courses.length !== 0 ? (
+            <Flex wrap gap={20}>
+              {courses.map((course) => {
                 return (
                   <CardWrapper>
                     <Card
@@ -204,13 +207,16 @@ function AllCourses() {
                     </Card>
                   </CardWrapper>
                 );
-              })
-            ) : (
-              <>
-                <Typography.Text>No course available right now</Typography.Text>
-              </>
-            )}
-          </Flex>
+              })}
+            </Flex>
+          ) : (
+            <Flex justify="center" className='background-and-border'>
+              <Result
+                title="No course available right now"
+                subTitle="Please create any course"
+              />
+            </Flex>
+          )}
         </div>
       </Spin>
       <Modal

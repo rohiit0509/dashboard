@@ -229,3 +229,8 @@ span.flatpickr-weekday,
 .ant-btn-primary {
   background: #7f56d9;
 }
+
+.background-and-border{
+  background-color: #fff;
+  border-radius: 12px;
+}

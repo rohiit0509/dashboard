@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { collection, addDoc } from 'firebase/firestore';
+import { Controller, useForm } from 'react-hook-form';
 import { db } from '../../firebase';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -11,9 +10,10 @@ import {
 } from 'firebase/storage';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Button } from 'antd';
+import { Button, Result, Select } from 'antd';
 import { AuthContext } from '../../helper/auth';
-
+import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 const AddTest = () => {
   const {
     handleSubmit,
@@ -23,11 +23,15 @@ const AddTest = () => {
     formState: { errors },
     reset,
     getValues,
+    control,
   } = useForm();
   const [isLoading, setIsLoading] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [numQuestions, setNumQuestions] = useState(0);
   const { currentUser } = useContext(AuthContext);
+  const [courses, setCourses] = useState([]);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem('testForm'));
@@ -109,9 +113,7 @@ const AddTest = () => {
     if (!validateQuestions()) {
       return;
     }
-
     setIsLoading(true);
-
     try {
       const testRef = await addDoc(collection(db, 'Tests'), {
         testName: formData.testName,
@@ -119,6 +121,7 @@ const AddTest = () => {
         numberOfQuestions: Number(formData.numberOfQuestions),
         createdAt: new Date(),
         authorId: currentUser?.userId,
+        courseId: formData?.courseName,
       });
 
       console.log('Test Document written with ID: ', testRef.id);
@@ -222,212 +225,275 @@ const AddTest = () => {
     clearErrors(`questions.${index}.options.${optionIndex}`);
   };
 
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      const coursesQuery = query(
+        collection(db, 'Courses'),
+        where('authorId', '==', currentUser.userId),
+      );
+
+      const querySnapshot = await getDocs(coursesQuery);
+      const adminCourses = querySnapshot.docs.map((doc) => ({
+        value: doc.id,
+        label: doc.data().courseName,
+      }));
+      setCourses(adminCourses);
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-1 gap-9 sm:grid-cols-1">
-          <div className="flex flex-col gap-9">
-            <div className="rounded-sm border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
-              <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-                <h3 className="font-medium text-black dark:text-white">
-                  Test Details
-                </h3>
-              </div>
-              <div className="flex flex-col gap-5.5 p-6.5">
-                <div>
-                  <label className="mb-3 block text-black dark:text-white">
-                    Test Name
-                  </label>
-                  <input
-                    {...register('testName', { required: true })}
-                    type="text"
-                    placeholder="Test Name"
-                    className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-3 block text-black dark:text-white">
-                    Timer (in minutes)
-                  </label>
-                  <input
-                    {...register('timer', {
-                      required: true,
-                      valueAsNumber: true,
-                      min: 1,
-                    })}
-                    type="number"
-                    min="1"
-                    placeholder="Timer"
-                    className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-3 block text-black dark:text-white">
-                    Number of Questions
-                  </label>
-                  <input
-                    {...register('numberOfQuestions', {
-                      required: true,
-                      valueAsNumber: true,
-                      min: 1,
-                    })}
-                    type="number"
-                    min="1"
-                    value={numQuestions}
-                    onChange={handleNumQuestionsChange}
-                    placeholder="Number of Questions"
-                    className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
-                </div>
-              </div>
-            </div>
-            {questions.map((question, index) => (
-              <div
-                key={index}
-                className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
-              >
+      {courses?.length !== 0 ? (
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid grid-cols-1 gap-9 sm:grid-cols-1">
+            <div className="flex flex-col gap-9">
+              <div className="rounded-sm border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
                 <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                   <h3 className="font-medium text-black dark:text-white">
-                    Question {index + 1}
+                    Test Details
                   </h3>
                 </div>
                 <div className="flex flex-col gap-5.5 p-6.5">
                   <div>
                     <label className="mb-3 block text-black dark:text-white">
-                      Question Text
+                      Select Course
                     </label>
-                    <input
-                      type="text"
-                      value={question.questionText}
-                      onChange={(e) =>
-                        handleQuestionChange(
-                          index,
-                          'questionText',
-                          e.target.value,
-                        )
-                      }
-                      placeholder="Enter Question"
-                      className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
-                    {errors?.questions?.[index]?.questionText && (
-                      <p className="text-danger">
-                        {errors.questions[index].questionText.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="mb-3 block text-black dark:text-white">
-                      Question Image (Optional)
-                    </label>
-                    <input
-                      type="file"
-                      onChange={(e) =>
-                        handleQuestionChange(
-                          index,
-                          'questionImage',
-                          e.target.files[0],
-                        )
-                      }
-                      className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
-                    {question.questionImage &&
-                      typeof question.questionImage !== 'string' && (
-                        <p>{question.questionImage.name}</p>
+                    <Controller
+                      name="courseName"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <Select
+                          placeholder="Select Course Name"
+                          className="w-full"
+                          style={{ height: '48px' }}
+                          loading={loading}
+                          options={courses}
+                          {...field}
+                        />
                       )}
+                    />
                   </div>
-
                   <div>
                     <label className="mb-3 block text-black dark:text-white">
-                      Options
+                      Test Name
                     </label>
-                    {question.options.map((option, optionIndex) => (
-                      <div
-                        key={optionIndex}
-                        className="flex items-center gap-3 mb-3"
-                      >
-                        <input
-                          type="text"
-                          value={option}
-                          onChange={(e) =>
-                            handleOptionChange(
-                              index,
-                              optionIndex,
-                              e.target.value,
-                            )
-                          }
-                          placeholder={`Option ${optionIndex + 1}`}
-                          className="w-2/3 rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        />
-                        <input
-                          type="file"
-                          onChange={(e) => {
-                            const updatedQuestions = [...questions];
-                            updatedQuestions[index].optionImages[optionIndex] =
-                              e.target.files[0];
-                            setQuestions(updatedQuestions);
-                          }}
-                          className="w-1/3 rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        />
-                        {question.optionImages[optionIndex] &&
-                          typeof question.optionImages[optionIndex] !==
-                            'string' && (
-                            <p>{question.optionImages[optionIndex].name}</p>
-                          )}
-                        {errors?.questions?.[index]?.options?.[optionIndex] && (
-                          <p className="text-danger">
-                            {
-                              errors.questions[index].options[optionIndex]
-                                .message
-                            }
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div>
-                    <label className="mb-3 block text-black dark:text-white">
-                      Correct Answer
-                    </label>
-                    <select
-                      value={question.answer}
-                      onChange={(e) =>
-                        handleQuestionChange(index, 'answer', e.target.value)
-                      }
+                    <input
+                      {...register('testName', { required: true })}
+                      type="text"
+                      placeholder="Test Name"
                       className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    >
-                      <option value="" disabled>
-                        Select correct option
-                      </option>
-                      {question.options.map((option, optionIndex) => (
-                        <option key={optionIndex} value={optionIndex}>
-                          Option {optionIndex + 1}
-                        </option>
-                      ))}
-                    </select>
-                    {errors?.questions?.[index]?.answer && (
-                      <p className="text-danger">
-                        {errors.questions[index].answer.message}
-                      </p>
-                    )}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-3 block text-black dark:text-white">
+                      Timer (in minutes)
+                    </label>
+                    <input
+                      {...register('timer', {
+                        required: true,
+                        valueAsNumber: true,
+                        min: 1,
+                      })}
+                      type="number"
+                      min="1"
+                      placeholder="Timer"
+                      className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-3 block text-black dark:text-white">
+                      Number of Questions
+                    </label>
+                    <input
+                      {...register('numberOfQuestions', {
+                        required: true,
+                        valueAsNumber: true,
+                        min: 1,
+                      })}
+                      type="number"
+                      min="1"
+                      value={numQuestions}
+                      onChange={handleNumQuestionsChange}
+                      placeholder="Number of Questions"
+                      className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    />
                   </div>
                 </div>
               </div>
-            ))}
-            <div className="mt-4 flex gap-5">
-              <Button type="primary" htmlType="submit" disabled={isLoading}>
-                {isLoading ? 'Saving...' : 'Save Test'}
-              </Button>
-              <Button type="default" onClick={handleClearQuestions}>
-                Clear
-              </Button>
+              {questions.map((question, index) => (
+                <div
+                  key={index}
+                  className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
+                >
+                  <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                    <h3 className="font-medium text-black dark:text-white">
+                      Question {index + 1}
+                    </h3>
+                  </div>
+                  <div className="flex flex-col gap-5.5 p-6.5">
+                    <div>
+                      <label className="mb-3 block text-black dark:text-white">
+                        Question Text
+                      </label>
+                      <input
+                        type="text"
+                        value={question.questionText}
+                        onChange={(e) =>
+                          handleQuestionChange(
+                            index,
+                            'questionText',
+                            e.target.value,
+                          )
+                        }
+                        placeholder="Enter Question"
+                        className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      />
+                      {errors?.questions?.[index]?.questionText && (
+                        <p className="text-danger">
+                          {errors.questions[index].questionText.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="mb-3 block text-black dark:text-white">
+                        Question Image (Optional)
+                      </label>
+                      <input
+                        type="file"
+                        onChange={(e) =>
+                          handleQuestionChange(
+                            index,
+                            'questionImage',
+                            e.target.files[0],
+                          )
+                        }
+                        className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      />
+                      {question.questionImage &&
+                        typeof question.questionImage !== 'string' && (
+                          <p>{question.questionImage.name}</p>
+                        )}
+                    </div>
+
+                    <div>
+                      <label className="mb-3 block text-black dark:text-white">
+                        Options
+                      </label>
+                      {question.options.map((option, optionIndex) => (
+                        <div
+                          key={optionIndex}
+                          className="flex items-center gap-3 mb-3"
+                        >
+                          <input
+                            type="text"
+                            value={option}
+                            onChange={(e) =>
+                              handleOptionChange(
+                                index,
+                                optionIndex,
+                                e.target.value,
+                              )
+                            }
+                            placeholder={`Option ${optionIndex + 1}`}
+                            className="w-2/3 rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                          />
+                          <input
+                            type="file"
+                            onChange={(e) => {
+                              const updatedQuestions = [...questions];
+                              updatedQuestions[index].optionImages[
+                                optionIndex
+                              ] = e.target.files[0];
+                              setQuestions(updatedQuestions);
+                            }}
+                            className="w-1/3 rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                          />
+                          {question.optionImages[optionIndex] &&
+                            typeof question.optionImages[optionIndex] !==
+                              'string' && (
+                              <p>{question.optionImages[optionIndex].name}</p>
+                            )}
+                          {errors?.questions?.[index]?.options?.[
+                            optionIndex
+                          ] && (
+                            <p className="text-danger">
+                              {
+                                errors.questions[index].options[optionIndex]
+                                  .message
+                              }
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div>
+                      <label className="mb-3 block text-black dark:text-white">
+                        Correct Answer
+                      </label>
+                      <select
+                        value={question.answer}
+                        onChange={(e) =>
+                          handleQuestionChange(index, 'answer', e.target.value)
+                        }
+                        className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      >
+                        <option value="" disabled>
+                          Select correct option
+                        </option>
+                        {question.options.map((option, optionIndex) => (
+                          <option key={optionIndex} value={optionIndex}>
+                            Option {optionIndex + 1}
+                          </option>
+                        ))}
+                      </select>
+                      {errors?.questions?.[index]?.answer && (
+                        <p className="text-danger">
+                          {errors.questions[index].answer.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div className="mt-4 flex gap-5">
+                <Button type="primary" htmlType="submit" disabled={isLoading}>
+                  {isLoading ? 'Saving...' : 'Save Test'}
+                </Button>
+                <Button type="default" onClick={handleClearQuestions}>
+                  Clear
+                </Button>
+              </div>
             </div>
           </div>
+        </form>
+      ) : (
+        <div className="background-and-border">
+          <Result
+            title="You do not have created any course"
+            subTitle="Please create course first"
+            extra={
+              <Button type="primary" onClick={() => navigate('/courses')}>
+                Create Course
+              </Button>
+            }
+          />
         </div>
-      </form>
+      )}
       <ToastContainer />
     </>
   );
