@@ -234,3 +234,7 @@ span.flatpickr-weekday,
   background-color: #fff;
   border-radius: 12px;
 }
+
+.ant-form-item .ant-form-item-label {
+  overflow: unset;
+}

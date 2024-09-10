@@ -5,6 +5,7 @@ import { useContext } from 'react';
 import { AuthContext } from '../../helper/auth';
 import { UserProfileWrapper } from '../../styles/signup';
 import useNotification from '../../hooks/useNotifier';
+import LogOut from '../../assets/svgs/SidebarIcons/LogOut';
 const Text = Typography;
 
 const UserProfile = ({ initials }: { initials: string | undefined }) => {
@@ -37,7 +38,7 @@ const UserProfile = ({ initials }: { initials: string | undefined }) => {
         </Flex>
         <Divider />
         <Row justify={'end'}>
-          <Button type="primary" ghost onClick={handleLogout}>
+          <Button type="primary" ghost onClick={handleLogout} icon={<LogOut />}>
             Sign Out
           </Button>
         </Row>

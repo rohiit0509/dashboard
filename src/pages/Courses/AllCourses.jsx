@@ -33,6 +33,7 @@ function AllCourses() {
   const [loading, setLoading] = useState(false);
   const { currentUser } = useContext(AuthContext);
   const currentRole = currentUser.role;
+  
   const fetchCourses = async () => {
     try {
       setLoading(true);
@@ -169,7 +170,7 @@ function AllCourses() {
                           >
                             {currentRole == 'user'
                               ? 'Add to Learning'
-                              : 'Start'}
+                              : 'View'}
                           </Button>
                           {currentRole !== 'user' && (
                             <Button

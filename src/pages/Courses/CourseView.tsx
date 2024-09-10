@@ -34,7 +34,9 @@ function CourseView() {
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const quillRef = useRef<ReactQuill>(null);
   useEffect(() => {
-    setIsAdmin(currentUser?.role == 'admin');
+    setIsAdmin(
+      currentUser?.role == 'admin' || currentUser?.role == 'superAdmin',
+    );
   }, [currentUser]);
 
   useEffect(() => {
@@ -299,8 +301,12 @@ function CourseView() {
               style={{ height: '100%' }}
             >
               <Typography.Title level={2}>{course.courseName}</Typography.Title>
-              <Typography.Text style={{maxWidth:"800px"}}>{course.subHeading}</Typography.Text>
-              <Typography.Text type="secondary">₹{course.price}</Typography.Text>
+              <Typography.Text style={{ maxWidth: '800px' }}>
+                {course.subHeading}
+              </Typography.Text>
+              <Typography.Text type="secondary">
+                ₹{course.price}
+              </Typography.Text>
             </Flex>
           ) : (
             <div

@@ -9,11 +9,16 @@ import {
   ShoppingCartOutlined,
   UsergroupAddOutlined,
 } from '@ant-design/icons';
+import HomeIcon from '../assets/svgs/SidebarIcons/Home';
+import Courses from '../assets/svgs/SidebarIcons/Courses';
+import SettingsIcon from '../assets/svgs/SidebarIcons/Settings';
+import Test from '../assets/svgs/SidebarIcons/Test';
+import LiveSession from '../assets/svgs/SidebarIcons/LiveSession';
 
 export const menuItems = [
   {
     key: '1',
-    icon: <DashboardOutlined />,
+    icon: <HomeIcon />,
     label: 'Dashboard',
     route: '/dashboard',
     activeRoute: ['/dashboard'],
@@ -38,7 +43,7 @@ export const menuItems = [
   },
   {
     key: '4',
-    icon: <FileProtectOutlined />,
+    icon: <Test />,
     label: 'Test',
     route: '/tests',
     roles: ['user'],
@@ -46,7 +51,7 @@ export const menuItems = [
   },
   {
     key: '5',
-    icon: <FileProtectOutlined />,
+    icon: <LiveSession />,
     label: 'Live Session',
     route: '/live-session',
     roles: ['user'],
@@ -87,7 +92,7 @@ export const menuItems = [
   },
   {
     key: '10',
-    icon: <ShoppingCartOutlined />,
+    icon: <Courses />,
     label: 'Courses',
     route: '/courses',
     activeRoute: ['/courses', '/view-course'],
@@ -95,7 +100,7 @@ export const menuItems = [
   },
   {
     key: '11',
-    icon: <SettingOutlined />,
+    icon: <SettingsIcon />,
     label: 'Settings',
     route: '/user-settings',
     activeRoute: ['/user-settings'],

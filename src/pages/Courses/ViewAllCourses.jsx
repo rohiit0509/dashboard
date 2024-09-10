@@ -47,17 +47,10 @@ function ViewAllCourses() {
   return (
     <>
       <div className="App">
-        {/* <button
-          onClick={handleShow}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-        >
-          Create Course
-        </button> */}
         <div>
           <h2 className="text-[20px] font-semibold pb-5">On Going Courses</h2>
-
           <Flex wrap gap={20}>
-            {courses.map((course) => (
+            {courses?.map((course) => (
               <CardWrapper>
                 <Card
                   hoverable

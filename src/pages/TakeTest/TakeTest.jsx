@@ -318,7 +318,7 @@ const TakeTest = () => {
           }
           title={'The quiz has ended. Thank you!'}
           extra={[
-            <Button type="primary" onClick={() => navigate('/all-results')}>
+            <Button type="primary" onClick={() => navigate(`/test-results/${testId}/${userId}`)}>
               Check Result
             </Button>
           ]}

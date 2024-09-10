@@ -2,7 +2,6 @@ import styled from 'styled-components';
 export const LogoWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
   width: 100%;
   padding: 15px;
 `;
@@ -24,7 +23,13 @@ export const SidebarFooter = styled.div<{ collapsed: boolean }>`
   background-color: #704fe4;
   border-radius: 15px;
   color: #fff;
-  padding: 10px;
-  margin: 30px 7px;
+  padding: 14px;
+  margin: 30px 7px 0 7px;
   display: ${({ collapsed }) => (collapsed ? 'none' : 'block')};
+`;
+export const Top = styled.div``;
+export const Bottom = styled.div`
+display: flex;
+flex-direction: column;
+gap: 5px;
 `;
