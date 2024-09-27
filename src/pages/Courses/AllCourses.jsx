@@ -11,7 +11,7 @@ import {
   where,
 } from 'firebase/firestore';
 import CourseModal from './CourseModal';
-import { Button, Card, Flex, Modal, Result, Row, Spin, Typography } from 'antd';
+import { Button, Card, Flex, Modal, Rate, Result, Row, Spin, Typography } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
 import TrashIcon from '../../assets/svgs/TrashIcon';
@@ -22,6 +22,7 @@ import { AuthContext } from '../../helper/auth';
 import SmallTickIcon from '../../assets/svgs/SmallTickIcon';
 import PlayIcon from '../../assets/svgs/PlayIcon';
 import PurchaseModal from '../../Modals/PurchaseModal';
+import cardBackground from '/card-background.png'
 const { confirm } = Modal;
 
 function AllCourses() {
@@ -147,7 +148,7 @@ function AllCourses() {
                       cover={
                         <img
                           alt="example"
-                          src="https://cdn.prod.website-files.com/5a9ee6416e90d20001b20038/64f5c1c1f5723d7453a3de42_Rectangle%20(94).svg"
+                          src={cardBackground}
                         />
                       }
                       actions={[
@@ -182,9 +183,19 @@ function AllCourses() {
                       ]}
                     >
                       <Meta
-                        title={
-                          course.courseName !== '' ? course.courseName : 'Demo'
-                        }
+                       title={
+                        <Flex justify="space-between">
+                          {course.courseName !== '' ? course.courseName : 'Demo'}
+                          <Flex gap={2} align="center">
+                            <Rate
+                              count={1}
+                              value={1}
+                              style={{ fontSize: '12px' }}
+                            />
+                            <Text className='text-xs'>4.5 (12k)</Text>
+                          </Flex>
+                        </Flex>
+                      }
                         description={
                           course.subHeading !== '' ? (
                             <Text ellipsis>{course.subHeading}</Text>
@@ -196,8 +207,9 @@ function AllCourses() {
                       <Row
                         justify={'space-between'}
                         style={{ marginTop: '20px' }}
+                        align={'middle'}
                       >
-                        <Title level={5}>
+                        <Title level={4}>
                           ₹{course.price !== '' ? course.price : '100'}
                         </Title>
                         <OfferContainer>

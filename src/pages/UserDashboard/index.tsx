@@ -2,7 +2,6 @@ import { Button, Card, Flex, Rate, Row, Spin, Typography } from 'antd';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import InfoCard from '../../components/InfoCard';
 import { CardWrapper } from '../../styles/table';
-import { StepForwardOutlined } from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
 import { useNavigate } from 'react-router-dom';
 import { useContext, useEffect, useState } from 'react';
@@ -12,6 +11,8 @@ import { db } from '../../firebase';
 import useNotification from '../../hooks/useNotifier';
 import SmallTickIcon from '../../assets/svgs/SmallTickIcon';
 import PlayIcon from '../../assets/svgs/PlayIcon';
+import cardBackground from '/card-background.png';
+
 const { Title, Text } = Typography;
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const UserDashboard = () => {
         coursesRef,
         where('consumerId', 'array-contains', userId),
       );
-      
+
       const querySnapshot = await getDocs(q);
 
       const purchasedCourses = querySnapshot.docs.map((doc) => ({
@@ -68,23 +69,18 @@ const UserDashboard = () => {
                 <Card
                   hoverable
                   style={{ width: 300, cursor: 'pointer' }}
-                  cover={
-                    <img
-                      alt="example"
-                      src="https://cdn.prod.website-files.com/5a9ee6416e90d20001b20038/64f5c1c1f5723d7453a3de42_Rectangle%20(94).svg"
-                    />
-                  }
+                  cover={<img alt="example" src={cardBackground} />}
                   actions={[
                     <Flex gap={5}>
                       <Button
                         block
                         type="default"
                         onClick={() => navigate(`/view-courses/${course.id}`)}
-                        icon={<PlayIcon/>}
+                        icon={<PlayIcon />}
                       >
                         Resume
                       </Button>
-                    </Flex>
+                    </Flex>,
                   ]}
                 >
                   <Meta
@@ -97,7 +93,7 @@ const UserDashboard = () => {
                             value={1}
                             style={{ fontSize: '12px' }}
                           />
-                          <Text>4.5 (12k)</Text>
+                          <Text className="text-xs">4.5 (12k)</Text>
                         </Flex>
                       </Flex>
                     }

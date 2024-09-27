@@ -1,11 +1,8 @@
-import { Button, Flex, Modal, Table, Typography } from 'antd';
-import { useState } from 'react';
-import CreateNewSessionRequest from '../../Modals/CreateNewSessionRequest';
+import { Button, Flex, Table, Typography } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 const { Title } = Typography;
 const SessionRequest = () => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const handleClose = () => setModalOpen(false);
-  const handleSave = (values: any) => {};
+  const handleDeleteWebinar =(sessionId:string)=>{}
   const columns = [
     {
       title: 'Name',
@@ -36,6 +33,17 @@ const SessionRequest = () => {
       title: 'Share Schedule Link',
       dataIndex: 'shareScheduleLink',
       key: 'shareScheduleLink',
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (record:any) => {
+        return (
+          <Button type="text" onClick={()=>handleDeleteWebinar(record.key)}>
+            <DeleteOutlined/>
+          </Button>
+        );
+      },
     },
   ];
   const dataSource = [
@@ -89,20 +97,7 @@ const SessionRequest = () => {
         </Flex>
         <Table columns={columns} dataSource={dataSource} />
       </Flex>
-      {/* <Modal
-        title="Create New Session Request"
-        open={modalOpen}
-        footer={null}
-        centered
-        destroyOnClose
-        onCancel={handleClose}
-      >
-        <CreateNewSessionRequest
-          handleClose={handleClose}
-          handleSave={handleSave}
-        />
-      </Modal> */}
-    </>
+     </>
   );
 };
 

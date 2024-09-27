@@ -19,6 +19,7 @@ const ListTests = () => {
   const navigate = useNavigate();
 
   const role = currentUser.role;
+  console.log('asdfafdsasf', role);
   const userId = currentUser.userId;
   const resultPageData = {
     user: {
@@ -150,17 +151,27 @@ const ListTests = () => {
                       {test.timer}mins{' '}
                     </span>
                   </p>
-                  <Link
-                    to={`/take-test/${test.id}`}
-                    className="inline-block px-5 py-2 bg-[#3D3D3D] hover:bg-[#C4ED2F] hover:text-[#2D3748] text-[12px] font-bold text-white rounded-[10px]"
-                  >
-                    Take Test
-                  </Link>
+                  <Flex gap={4}>
+                    <Link
+                      to={`/take-test/${test.id}`}
+                      className="inline-block px-5 py-2 bg-[#3D3D3D] hover:bg-[#C4ED2F] hover:text-[#2D3748] text-[12px] font-bold text-white rounded-[10px]"
+                    >
+                      {role !== 'user' ? 'View Test' : 'Take Test'}
+                    </Link>
+                    {(role == 'admin' || role == 'superAdmin') && (
+                      <Link
+                        // to={`/take-test/${test.id}`}
+                        className="inline-block px-5 py-2 bg-[#3D3D3D] hover:bg-[#C4ED2F] hover:text-[#2D3748] text-[12px] font-bold text-white rounded-[10px]"
+                      >
+                        Publish Result
+                      </Link>
+                    )}
+                  </Flex>
                 </div>
               </div>
             ))
           ) : (
-            <div className='background-and-border'>
+            <div className="background-and-border">
               <Result
                 title={resultPageData[role]?.title}
                 subTitle={resultPageData[role]?.subTitle}
@@ -217,7 +228,7 @@ const ListTests = () => {
                           </span>
                         </p>
                         <Link
-                           to={`/test-results/${test.id}/${test.userId}`}
+                          to={`/test-results/${test.id}/${test.userId}`}
                           className="inline-block px-5 py-2 bg-[#3D3D3D] hover:bg-[#C4ED2F] hover:text-[#2D3748] text-[12px] font-bold text-white rounded-[10px]"
                         >
                           View Results

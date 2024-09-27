@@ -1,18 +1,31 @@
 import { Button, Flex, Modal, Table, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import ScheduleWebniarModal from '../../Modals/ScheduleWebniarModal';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 import useNotification from '../../hooks/useNotifier';
 import { Link } from 'react-router-dom';
+import { DeleteOutlined } from '@ant-design/icons';
 const { Title } = Typography;
 const ScheduleWebinar = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const handleClose = () => setModalOpen(false);
   const { openNotification } = useNotification();
-  const [webinars, setWebinars] = useState<any[]>([]); // State to store webinar data
-  const [loading, setLoading] = useState(false); // State to manage loading status
+  const [webinars, setWebinars] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
+  const handleDeleteWebinar = async(webinarId:string)=>{
+    try {
+      setLoading(true);
+      await deleteDoc(doc(db, 'scheduleWebinars', webinarId));
+      setWebinars((prev) => prev.filter((webinar) => webinar.key !== webinarId));
+      openNotification('success', 'Webinar deleted successfully', '');
+    } catch (error) {
+      openNotification('error', 'Failed to delete webinar', '');
+    } finally {
+      setLoading(false);
+    }
+  };
   const columns = [
     {
       title: 'Title',
@@ -30,7 +43,7 @@ const ScheduleWebinar = () => {
       key: 'description',
     },
     {
-      title: ' Share Schedule Link',
+      title: 'Share Schedule Link',
       dataIndex: 'sheduleLink',
       key: 'sheduleLink',
       render: (value: string) => (
@@ -38,6 +51,17 @@ const ScheduleWebinar = () => {
           {value}
         </Link>
       ),
+    },
+    {
+      title: 'Action',
+      key: 'Action',
+      render: (record:any) => {
+        return (
+          <Button type="text" onClick={()=>handleDeleteWebinar(record.key)}>
+            <DeleteOutlined />
+          </Button>
+        );
+      },
     },
   ];
 
@@ -88,7 +112,10 @@ const ScheduleWebinar = () => {
         destroyOnClose
         onCancel={handleClose}
       >
-        <ScheduleWebniarModal handleClose={handleClose} fetchWebinars={fetchWebinars}/>
+        <ScheduleWebniarModal
+          handleClose={handleClose}
+          fetchWebinars={fetchWebinars}
+        />
       </Modal>
     </>
   );
